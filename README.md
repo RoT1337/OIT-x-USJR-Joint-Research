@@ -1,73 +1,107 @@
-# React + TypeScript + Vite
+# USJR × OIT Research Log (Prototype)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
+This project is a **prototype web application** developed as part of the **USJR–OIT Joint Research Collaboration**.
 
-Currently, two official plugins are available:
+The goal of the application is to provide a **shared, visual research activity log** that allows students and professors to:
+- track ongoing research progress,
+- review recent updates at a glance,
+- and maintain alignment across institutions during an exploratory research phase.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This is an **internal academic coordination tool**, not a public-facing product.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## What This Prototype Demonstrates
+- A **timeline-style research log** showing recent updates
+- Clear metadata for each entry:
+  - date
+  - research category (e.g., Rectenna, MPPT, AI, Meetings)
+  - affiliation (USJR / OIT)
+- Emphasis on **scanability** and clarity for supervisors
+- A placeholder for **AI-assisted Japanese translation** (UI only, no real translation yet)
 
-## Expanding the ESLint configuration
+> Note: All data is currently **mock data** for demonstration purposes.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Project Scope (Current Phase)
+### Included
+- React + TypeScript frontend
+- Timeline feed of research log entries
+- Simple sorting (newest ↔ oldest)
+- Clean, academic-style UI
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Not Included (By Design)
+- Authentication or user accounts
+- Backend or database
+- Hardware data integration
+- Real AI or translation APIs
+- Full documentation or CMS features
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+These may be explored in later phases.
+
+---
+
+## Tech Stack
+- **Frontend:** React + TypeScript
+- **Build Tool:** Vite
+- **Styling:** Basic CSS (academic, minimal)
+- **Data:** Local mock data (no backend)
+
+---
+
+## Installation & Running Locally
+
+### Prerequisites
+- **Node.js** (version 18 or higher recommended)
+- **npm** (comes with Node.js)
+
+Check your versions:
+```bash
+node -v
+npm -v
+
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Setup Steps
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+1. Clone the repository:
+
+  ```bash
+  git clone <repository-url>
+  cd usjr-oit-research-log
+  ```
+
+2. Install dependencies:
+
+  ```bash
+  npm install
+  ```
+
+3. Start the development server:
+
+  ```bash
+  npm run dev
+  ```
+
+4. Open your browser and go to:
+
+  - http://localhost:5173
+
+---
+
+## Intended Audience
+- USJR student researchers (Computer Science background)
+- OIT professors and research staff
+- Mixed CS / Electrical Engineering audience
+- English-first, with consideration for Japanese accessibility
+
+---
+
+## Development Notes
+- This project prioritizes clarity over complexity
+- Features are intentionally limited to avoid scope creep
+- Architecture is designed to be extendable later if needed
