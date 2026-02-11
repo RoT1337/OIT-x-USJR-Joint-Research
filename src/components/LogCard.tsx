@@ -8,6 +8,7 @@ interface Props {
 export function LogCard({ entry }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
   const hasDetails = Boolean(entry.details && entry.details.trim().length > 0);
+  const images = entry.images ?? [];
 
   const affiliationBadgeClassName =
     entry.affiliation === "USJR"
@@ -32,6 +33,24 @@ export function LogCard({ entry }: Props) {
         ) : null}
       </div>
       <p className="mt-3 text-sm leading-relaxed text-zinc-900 dark:text-zinc-50">{entry.content}</p>
+
+      {images.length > 0 ? (
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          {images.map((img) => (
+            <figure
+              key={img.src}
+              className="overflow-hidden rounded-md border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950"
+            >
+              <img src={img.src} alt={img.alt} className="h-auto w-full" loading="lazy" />
+              {img.caption ? (
+                <figcaption className="border-t border-zinc-200 px-3 py-2 text-xs text-zinc-600 dark:border-zinc-800 dark:text-zinc-300">
+                  {img.caption}
+                </figcaption>
+              ) : null}
+            </figure>
+          ))}
+        </div>
+      ) : null}
 
       {hasDetails ? (
         <div className="mt-3">

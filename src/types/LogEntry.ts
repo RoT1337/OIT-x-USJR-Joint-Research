@@ -2,6 +2,12 @@ export type ResearchCategory = "Rectenna" | "MPPT" | "AI" | "Meeting";
 
 export type Affiliation = "USJR" | "OIT";
 
+export interface LogImage {
+    src: string;
+    alt: string;
+    caption?: string;
+}
+
 export interface LogEntry {
     id: number;
     date: string;
@@ -11,4 +17,5 @@ export interface LogEntry {
     authorName?: string;
     content: string;
     details?: string;
+    images?: LogImage[];
 }

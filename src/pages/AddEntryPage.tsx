@@ -19,6 +19,7 @@ export function AddEntryPage({ affiliation, onAdd, onGoToLogin }: Props) {
   const [date, setDate] = useState(defaultDate);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<ResearchCategory>("Rectenna");
+  const [authorName, setAuthorName] = useState("");
   const [content, setContent] = useState("");
   const [details, setDetails] = useState("");
 
@@ -63,11 +64,13 @@ export function AddEntryPage({ affiliation, onAdd, onGoToLogin }: Props) {
             title: cleanTitle,
             category,
             affiliation,
+            authorName: authorName.trim() ? authorName.trim() : undefined,
             content: cleanContent,
             details: details.trim() ? details.trim() : undefined,
           });
 
           setTitle("");
+          setAuthorName("");
           setContent("");
           setDetails("");
         }}
@@ -98,6 +101,16 @@ export function AddEntryPage({ affiliation, onAdd, onGoToLogin }: Props) {
             </select>
           </label>
         </div>
+
+        <label className="space-y-1">
+          <span className="text-sm font-medium text-zinc-900 dark:text-zinc-50">Author name (optional)</span>
+          <input
+            value={authorName}
+            onChange={(e) => setAuthorName(e.target.value)}
+            placeholder="e.g., USJR Research Team"
+            className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder:text-zinc-500"
+          />
+        </label>
 
         <label className="space-y-1">
           <span className="text-sm font-medium text-zinc-900 dark:text-zinc-50">Title</span>

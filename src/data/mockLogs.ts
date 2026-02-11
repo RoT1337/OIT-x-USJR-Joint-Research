@@ -11,7 +11,14 @@ export const mockLogs: LogEntry[] = [
     content:
       "Confirmed initial rectenna equivalent-circuit assumptions and agreed to document parameter sources for reproducibility.",
     details:
-      "Notes: focus is on a model that is easy to explain to supervisors first; accuracy improvements can follow once the baseline is validated."
+      "Notes: focus is on a model that is easy to explain to supervisors first; accuracy improvements can follow once the baseline is validated.",
+    images: [
+      {
+        src: "/mock/rectenna-figure.svg",
+        alt: "Rectenna placeholder figure",
+        caption: "Placeholder figure (replace with schematic/model screenshot later)."
+      }
+    ]
   },
   {
     id: 2,
@@ -23,7 +30,14 @@ export const mockLogs: LogEntry[] = [
     content:
       "Reviewed P&O vs. incremental conductance at a high level; discussed how load variation might affect stability in WPT contexts.",
     details:
-      "Action item: define evaluation criteria (convergence speed, ripple, implementation complexity) suitable for early prototype simulations."
+      "Action item: define evaluation criteria (convergence speed, ripple, implementation complexity) suitable for early prototype simulations.",
+    images: [
+      {
+        src: "/mock/mppt-plot.svg",
+        alt: "MPPT placeholder plot",
+        caption: "Placeholder plot (replace with simulation results later)."
+      }
+    ]
   },
   {
     id: 3,

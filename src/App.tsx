@@ -3,19 +3,46 @@ import { NavBar, type PageKey } from "./components/layout/NavBar";
 import { useState } from "react";
 import { AboutPage } from "./pages/AboutPage";
 import { TimelinePage } from "./pages/TimelinePage";
-import { LoginPage } from "./pages/LoginPage";
-import { AddEntryPage } from "./pages/AddEntryPage";
 import { mockLogs } from "./data/mockLogs";
 import type { Affiliation, LogEntry } from "./types/LogEntry";
+import { LoginModal } from "./components/layout/LoginModal";
+import { AddEntryModal } from "./components/layout/AddEntryModal";
 
 function App() {
   const [activePage, setActivePage] = useState<PageKey>("timeline");
   const [sessionAffiliation, setSessionAffiliation] = useState<Affiliation | null>(null);
   const [entries, setEntries] = useState<LogEntry[]>(mockLogs);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [pageAfterLogin, setPageAfterLogin] = useState<PageKey>("timeline");
+  const [isAddEntryOpen, setIsAddEntryOpen] = useState(false);
+  const [openAddAfterLogin, setOpenAddAfterLogin] = useState(false);
+
+  function requestLogin(nextPage: PageKey = "timeline") {
+    setPageAfterLogin(nextPage);
+    setIsLoginOpen(true);
+  }
+
+  function requestAddEntry() {
+    if (sessionAffiliation) {
+      setIsAddEntryOpen(true);
+      return;
+    }
+
+    setOpenAddAfterLogin(true);
+    requestLogin(activePage);
+  }
 
   function handleLogin(affiliation: Affiliation) {
     setSessionAffiliation(affiliation);
-    setActivePage("timeline");
+    setIsLoginOpen(false);
+
+    if (openAddAfterLogin) {
+      setOpenAddAfterLogin(false);
+      setIsAddEntryOpen(true);
+      return;
+    }
+
+    setActivePage(pageAfterLogin);
   }
 
   function handleAdd(newEntry: Omit<LogEntry, "id">) {
@@ -36,22 +63,27 @@ function App() {
         activePage={activePage}
         onNavigate={setActivePage}
         isLoggedIn={sessionAffiliation !== null}
+        onRequestLogin={() => requestLogin("timeline")}
+        onRequestAddEntry={requestAddEntry}
+        isAddEntryOpen={isAddEntryOpen}
       />
       <main className="mx-auto max-w-5xl px-4 py-6">
-        {activePage === "timeline" ? (
-          <TimelinePage entries={entries} />
-        ) : activePage === "add" ? (
-          <AddEntryPage
-            affiliation={sessionAffiliation}
-            onAdd={handleAdd}
-            onGoToLogin={() => setActivePage("login")}
-          />
-        ) : activePage === "login" ? (
-          <LoginPage onLogin={handleLogin} />
-        ) : (
-          <AboutPage />
-        )}
+        {activePage === "timeline" ? <TimelinePage entries={entries} /> : <AboutPage />}
       </main>
+
+      <LoginModal
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+        onLogin={handleLogin}
+      />
+
+      <AddEntryModal
+        isOpen={isAddEntryOpen}
+        affiliation={sessionAffiliation}
+        onClose={() => setIsAddEntryOpen(false)}
+        onAdd={handleAdd}
+        onRequestLogin={() => requestLogin(activePage)}
+      />
     </div>
   );
 }
