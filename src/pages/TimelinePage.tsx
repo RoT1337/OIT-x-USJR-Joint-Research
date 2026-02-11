@@ -1,21 +1,25 @@
 import { TimelineFeed } from "../components/TimelineFeed";
-import { mockLogs } from "../data/mockLogs";
 import { useMemo, useState } from "react";
+import type { LogEntry } from "../types/LogEntry";
 
 type SortOrder = "newest" | "oldest";
 
-export function TimelinePage() {
+interface Props {
+  entries: LogEntry[];
+}
+
+export function TimelinePage({ entries }: Props) {
   const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
 
-  const entries = useMemo(() => {
-    const copy = [...mockLogs];
+  const sortedEntries = useMemo(() => {
+    const copy = [...entries];
     copy.sort((a, b) => {
       const aTime = Date.parse(a.date);
       const bTime = Date.parse(b.date);
       return sortOrder === "newest" ? bTime - aTime : aTime - bTime;
     });
     return copy;
-  }, [sortOrder]);
+  }, [entries, sortOrder]);
 
   return (
     <div>
@@ -23,7 +27,7 @@ export function TimelinePage() {
         <div>
           <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Timeline</h2>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
-            {entries.length} entr{entries.length === 1 ? "y" : "ies"} (mock data)
+            {sortedEntries.length} entr{sortedEntries.length === 1 ? "y" : "ies"} (mock data)
           </p>
         </div>
       </div>
@@ -46,7 +50,7 @@ export function TimelinePage() {
       </p>
 
       <div className="mt-3">
-        <TimelineFeed entries={entries} />
+        <TimelineFeed entries={sortedEntries} />
       </div>
     </div>
   );
