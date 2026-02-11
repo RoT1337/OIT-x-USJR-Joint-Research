@@ -46,7 +46,7 @@ These may be explored in later phases.
 ## Tech Stack
 - **Frontend:** React + TypeScript
 - **Build Tool:** Vite
-- **Styling:** Basic CSS (academic, minimal)
+- **Styling:** Tailwind CSS (academic, minimal; neutral palette)
 - **Data:** Local mock data (no backend)
 
 ---
@@ -81,15 +81,42 @@ npm -v
   npm install
   ```
 
+  If you're on Windows PowerShell and you get an error like “running scripts is disabled”, use:
+
+  ```bash
+  npm.cmd install
+  ```
+
 3. Start the development server:
 
   ```bash
   npm run dev
   ```
 
+  Windows PowerShell fallback:
+
+  ```bash
+  npm.cmd run dev
+  ```
+
 4. Open your browser and go to:
 
   - http://localhost:5173
+
+---
+
+## Common Commands
+
+- Dev server: `npm run dev` (PowerShell fallback: `npm.cmd run dev`)
+- Production build: `npm run build` (PowerShell fallback: `npm.cmd run build`)
+- Preview production build: `npm run preview` (PowerShell fallback: `npm.cmd run preview`)
+
+---
+
+## Notes for Teammates
+
+- Tailwind CSS is already configured; you should not need to install anything beyond `npm install`.
+- Data is mock-only (no backend). Research log entries live in `src/data/mockLogs.ts` and types in `src/types/LogEntry.ts`.
 
 ---
 

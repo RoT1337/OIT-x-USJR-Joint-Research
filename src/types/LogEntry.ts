@@ -1,8 +1,14 @@
+export type ResearchCategory = "Rectenna" | "MPPT" | "AI" | "Meeting";
+
+export type Affiliation = "USJR" | "OIT";
+
 export interface LogEntry {
     id: number;
     date: string;
     title: string;
-    category: "Rectenna" | "MPPT" | "AI" | "Meeting";
-    author: "USJR" | "OIT"
+    category: ResearchCategory;
+    affiliation: Affiliation;
+    authorName?: string;
     content: string;
+    details?: string;
 }
