@@ -19,7 +19,15 @@ export const mockLogs: LogEntry[] = [
     details:
       "Notes: focus is on a model that is easy to explain to supervisors first; accuracy improvements can follow once the baseline is validated.",
     detailsJP:
-      "注記：まずは指導教員に説明しやすいモデル構造を優先する。ベースラインの妥当性確認後に精度向上を検討する。"
+      "注記：まずは指導教員に説明しやすいモデル構造を優先する。ベースラインの妥当性確認後に精度向上を検討する。",
+
+    images: [
+      {
+        src: "/mock/rectenna-figure.svg",
+        alt: "Rectenna placeholder figure",
+        caption: "Placeholder figure (replace with schematic/model screenshot later)."
+      }
+    ]
   },
   {
     id: 2,
@@ -39,7 +47,15 @@ export const mockLogs: LogEntry[] = [
     details:
       "Action item: define evaluation criteria (convergence speed, ripple, implementation complexity) suitable for early prototype simulations.",
     detailsJP:
-      "アクション項目：初期プロトタイプシミュレーション向けに評価基準（収束速度、リップル、実装複雑度）を定義する。"
+      "アクション項目：初期プロトタイプシミュレーション向けに評価基準（収束速度、リップル、実装複雑度）を定義する。",
+
+    images: [
+      {
+        src: "/mock/mppt-plot.svg",
+        alt: "MPPT placeholder plot",
+        caption: "Placeholder plot (replace with simulation results later)."
+      }
+    ]
   },
   {
     id: 3,

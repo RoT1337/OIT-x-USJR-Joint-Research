@@ -13,6 +13,7 @@ export function LogCard({ entry }: Props) {
   const t = translations[language];
 
   const hasDetails = Boolean(entry.details && entry.details.trim().length > 0);
+  const images = entry.images ?? [];
 
   const title =
     language === "jp" && entry.titleJP ? entry.titleJP : entry.title;
@@ -43,7 +44,9 @@ export function LogCard({ entry }: Props) {
           {t.categories[entry.category]}
         </span>
 
-        <span className={`rounded-md border px-2 py-0.5 text-xs font-medium ${affiliationBadgeClassName}`}>
+        <span
+          className={`rounded-md border px-2 py-0.5 text-xs font-medium ${affiliationBadgeClassName}`}
+        >
           {entry.affiliation}
         </span>
 
@@ -54,15 +57,39 @@ export function LogCard({ entry }: Props) {
         ) : null}
       </div>
 
+      {/* 🔥 THIS WAS MISSING */}
       <p className="mt-3 text-sm leading-relaxed text-zinc-900 dark:text-zinc-50">
         {content}
       </p>
 
-      {details ? (
+      {images.length > 0 ? (
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          {images.map((img) => (
+            <figure
+              key={img.src}
+              className="overflow-hidden rounded-md border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950"
+            >
+              <img
+                src={img.src}
+                alt={img.alt}
+                className="h-auto w-full"
+                loading="lazy"
+              />
+              {img.caption ? (
+                <figcaption className="border-t border-zinc-200 px-3 py-2 text-xs text-zinc-600 dark:border-zinc-800 dark:text-zinc-300">
+                  {img.caption}
+                </figcaption>
+              ) : null}
+            </figure>
+          ))}
+        </div>
+      ) : null}
+
+      {hasDetails ? (
         <div className="mt-3">
           <button
             type="button"
-            className="inline-flex items-center rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-900"
+            className="inline-flex items-center rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50"
             onClick={() => setIsExpanded((prev) => !prev)}
           >
             {isExpanded ? t.hideDetails : t.showDetails}
