@@ -1,4 +1,6 @@
 import { ThemeToggle } from "./ThemeToggle";
+import { useLanguage } from "../../context/LanguageContext";
+import { translations } from "../../i18n/translations";
 
 export type PageKey = "timeline" | "about";
 
@@ -8,6 +10,9 @@ interface Props {
 }
 
 export function NavBar({ activePage, onNavigate }: Props) {
+  const { language } = useLanguage();
+  const t = translations[language];
+
   return (
     <nav
       aria-label="Primary"
@@ -25,8 +30,9 @@ export function NavBar({ activePage, onNavigate }: Props) {
                   : "rounded-md border border-transparent px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-800"
               }
             >
-              Timeline
+              {t.timeline}
             </button>
+
             <button
               type="button"
               onClick={() => onNavigate("about")}
@@ -36,7 +42,7 @@ export function NavBar({ activePage, onNavigate }: Props) {
                   : "rounded-md border border-transparent px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-800"
               }
             >
-              About
+              {t.about}
             </button>
           </div>
 

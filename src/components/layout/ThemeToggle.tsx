@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useLanguage } from "../../context/LanguageContext";
+import { translations } from "../../i18n/translations";
 
 type Theme = "light" | "dark";
 
@@ -14,6 +16,9 @@ function applyTheme(theme: Theme) {
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("light");
 
+  const { language } = useLanguage();
+  const t = translations[language];
+
   useEffect(() => {
     const stored = localStorage.getItem("theme");
     if (stored === "light" || stored === "dark") {
@@ -22,7 +27,8 @@ export function ThemeToggle() {
       return;
     }
 
-    const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+    const prefersDark =
+      window.matchMedia?.("(prefers-color-scheme: dark)").matches;
     const initial: Theme = prefersDark ? "dark" : "light";
     setTheme(initial);
     applyTheme(initial);
@@ -40,9 +46,8 @@ export function ThemeToggle() {
       type="button"
       onClick={toggle}
       className="inline-flex items-center rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
-      aria-label="Toggle dark mode"
     >
-      {theme === "dark" ? "Dark" : "Light"}
+      {theme === "dark" ? t.dark : t.light}
     </button>
   );
 }
