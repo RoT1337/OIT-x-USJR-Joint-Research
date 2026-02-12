@@ -1,62 +1,153 @@
+# Project MUST-HAVES
 
-Description
-This project is a web-based prototype intended to support the USJR–OIT joint research collaboration by providing a shared platform to log, track, and visualize research activities, updates, and discussions. The system focuses on clarity, scanability, and ease of understanding for supervisors and collaborators involved in interdisciplinary research on Wireless Power Transfer, Rectenna Modeling, and MPPT-related topics. The platform is designed as an internal academic coordination tool rather than a production system.
+## Naming & Phase Terminology
 
-MUST-HAVES
-Actors
-- USJR Researchers / Supervisor
-- OIT Researcher / Supervisor
+To avoid confusion between earlier mock-only work and the current build:
 
-Architecture
-Frontend
-- Web-based interface for viewing research updates and activity logs
-- Timeline-style feed emphasizing recent changes and progress
-- Clean, academic-style UI focused on readability and scanability
+- **Prototype**: *USJR × OIT Research Log Prototype* (mock data, UI/UX validation, no backend)
+- **Project**: *USJR × OIT Research Log System* (persistent backend + deployable web system)
 
-Backend
-- None for this phase (mock data only)
+This document describes the **Project** requirements.
 
-Research Log Entries - Rob
-- Each entry must include:
-  - Date of update
-  - Title or short description
-  - Research category (Rectenna, MPPT, AI, Meeting)
-  - Affiliation / author (USJR or OIT)
-  - Content text (short notes or expandable details)
-- Entries should resemble lab notebook updates rather than finalized reports
+## 1) Project Description
 
-Timeline / Activity Feed - KC
-- Display research entries in chronological order
-- Default view shows most recent updates first
-- Optional toggle to sort newest-to-oldest or oldest-to-newest
-- Layout should allow a supervisor to understand recent activity quickly
+The **USJR × OIT Research Log System** is a web-based academic collaboration platform designed to document, track, and visualize the evolution of research activities related to **Wireless Power Transfer (WPT)**, **Rectenna Modeling**, and **MPPT** studies.
 
-Scanability & Readability - KC
-- Clear visual separation between log entries
-- Minimal use of color and UI elements
-- Typography and spacing like academic reports or technical documents
+This system serves as shared research infrastructure supporting interdisciplinary collaboration between computer science and electrical engineering researchers. It prioritizes **clarity**, **persistence**, and **structured documentation** over task management or workflow tracking.
 
-Basic Interaction - Rob
-- Optional expand / collapse control for each entry
-- No complex filtering or navigation in the MVP
+## 2) System Objectives
 
-Mock Data Usage
-- All research entries stored as local mock data
-- Data structure should be easy to replace with a backend in future phases
+The system must:
 
-AI-Assisted Japanese Translation (Placeholder)
-- UI placeholder indicating future AI-assisted Japanese translation
-- No real translation or AI integration required for this phase
+- Persist research entries in a database
+- Provide structured documentation of modeling decisions and experimental findings
+- Allow authorized contributors to add and edit research entries
+- Present research progression in a clear, chronological format
+- Remain academically styled and supervisor-friendly
+- Be deployable and accessible over the web
 
-Explicit Non-Goals (Out of Scope)
-- User authentication or access control
-- Real-time collaboration features
-- Hardware, sensor, or simulation data integration
-- Full internationalization system
-- Production deployment or optimization
+## 3) Core Functional Requirements
 
-Success Criteria
-- Research progress can be understood at a glance
-- Recent updates and changes are clearly visible
-- Both USJR and OIT contributions are distinguishable
-- System structure appears extendable without implementing extensions
+### 3.1) Research Log Entry Management (CRUD)
+
+The system must allow:
+
+- Create research entries
+- View research entries
+- Update research entries
+- Delete research entries (**admin-level only**)
+
+Each entry must include:
+
+- Title
+- Content (detailed research note)
+- Category (Rectenna, MPPT, AI, Meeting, Other)
+- Affiliation (USJR or OIT)
+- Created timestamp
+- Updated timestamp
+
+Entries represent **research documentation**, not tasks.
+
+### 3.2) Timeline / Chronological View
+
+- Entries must be displayed in chronological order
+- Default sorting: newest first
+- Optional toggle: newest ↔ oldest
+- Clear visual separation between entries
+- Emphasis on scanability
+
+The timeline is the **primary interface**.
+
+### 3.3) Administrative Interface
+
+- Django Admin must be enabled
+- Authorized users must be able to manage entries via admin panel
+- Admin is acceptable for early-stage content management
+- Custom frontend editing UI is optional in future phases
+
+### 3.4) Backend Infrastructure
+
+- Django backend
+- REST API for research entries
+- Persistent database (PostgreSQL preferred; SQLite acceptable during development)
+- Proper model structure for research logs
+- No complex relationships required at this stage
+
+### 3.5) Frontend Integration
+
+- React + TypeScript frontend
+- Communicates with Django API
+- No mock data in production
+- Clean academic UI
+- Minimal color palette
+- No unnecessary UI frameworks
+
+### 3.6) Deployment
+
+- System must be publicly accessible via stable URL
+- Unified deployment preferred (Django serving React build)
+- Hosting platform: Render (recommended)
+- HTTPS required
+- No enterprise infrastructure required
+
+## 4) Access Control (Initial Policy)
+
+Initial stage:
+
+- Editing restricted to authorized researchers
+- Viewing may remain public or semi-public depending on research sensitivity
+- No complex role hierarchy
+- Advanced authentication (e.g., institutional SSO) is out of scope for this phase
+
+## 5) Explicit Non-Goals (Current Phase)
+
+The following are intentionally excluded:
+
+- Task management features
+- Kanban boards
+- Comment threads
+- File uploads
+- Version control integration
+- Real-time collaboration
+- Messaging systems
+- Analytics dashboards
+- Performance optimization beyond reasonable standards
+- Mobile application development
+
+This system is a **structured academic log**, not a project management platform.
+
+## 6) Success Criteria
+
+The project is considered successful if:
+
+- Research entries persist reliably in the database
+- Professors can review recent research activity in under one minute
+- The interface clearly communicates research progression
+- The system is usable without technical explanation
+- Deployment is stable and accessible to both USJR and OIT
+
+## 7) Long-Term Extensibility (Future Consideration Only)
+
+Potential future expansions:
+
+- Role-based access control
+- Entry tagging system
+- File attachment support (e.g., simulation outputs)
+- Research summary exports (PDF)
+- AI-assisted summary generation
+- Visualization of research trends
+- Multi-project support
+
+These are not required for current implementation.
+
+## 8) Design Philosophy
+
+The system must embody:
+
+- Academic clarity
+- Structural simplicity
+- Intentional restraint
+- Cross-disciplinary accessibility
+- Sustainable architecture
+
+It must feel like a shared **lab notebook**, not a startup dashboard.
