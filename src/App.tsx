@@ -1,89 +1,82 @@
 import { AppHeader } from "./components/layout/AppHeader";
 import { NavBar, type PageKey } from "./components/layout/NavBar";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AboutPage } from "./pages/AboutPage";
 import { TimelinePage } from "./pages/TimelinePage";
-import { mockLogs } from "./data/mockLogs";
-import type { Affiliation, LogEntry } from "./types/LogEntry";
-import { LoginModal } from "./components/layout/LoginModal";
-import { AddEntryModal } from "./components/layout/AddEntryModal";
+import type { LogEntry } from "./types/LogEntry";
+import type { ResearchLog } from "./types/ResearchLog";
+
+const RESEARCHLOG_API_URL = "http://127.0.0.1:8000/api/researchlog/";
 
 function App() {
   const [activePage, setActivePage] = useState<PageKey>("timeline");
-  const [sessionAffiliation, setSessionAffiliation] = useState<Affiliation | null>(null);
-  const [entries, setEntries] = useState<LogEntry[]>(mockLogs);
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [pageAfterLogin, setPageAfterLogin] = useState<PageKey>("timeline");
-  const [isAddEntryOpen, setIsAddEntryOpen] = useState(false);
-  const [openAddAfterLogin, setOpenAddAfterLogin] = useState(false);
+  const [logs, setLogs] = useState<ResearchLog[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  function requestLogin(nextPage: PageKey = "timeline") {
-    setPageAfterLogin(nextPage);
-    setIsLoginOpen(true);
-  }
+  useEffect(() => {
+    let isCancelled = false;
 
-  function requestAddEntry() {
-    if (sessionAffiliation) {
-      setIsAddEntryOpen(true);
-      return;
+    async function load() {
+      try {
+        setIsLoading(true);
+        setErrorMessage(null);
+
+        const res = await fetch(RESEARCHLOG_API_URL);
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status} ${res.statusText}`);
+        }
+
+        const data = (await res.json()) as ResearchLog[];
+        if (isCancelled) return;
+        setLogs(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Failed to fetch research logs:", err);
+        if (isCancelled) return;
+        setErrorMessage("Could not load research logs from the local API.");
+      } finally {
+        if (!isCancelled) setIsLoading(false);
+      }
     }
 
-    setOpenAddAfterLogin(true);
-    requestLogin(activePage);
-  }
+    void load();
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
 
-  function handleLogin(affiliation: Affiliation) {
-    setSessionAffiliation(affiliation);
-    setIsLoginOpen(false);
-
-    if (openAddAfterLogin) {
-      setOpenAddAfterLogin(false);
-      setIsAddEntryOpen(true);
-      return;
-    }
-
-    setActivePage(pageAfterLogin);
-  }
-
-  function handleAdd(newEntry: Omit<LogEntry, "id">) {
-    setEntries((prev) => {
-      const nextId = prev.length > 0 ? Math.max(...prev.map((e) => e.id)) + 1 : 1;
-      return [{ ...newEntry, id: nextId }, ...prev];
-    });
-    setActivePage("timeline");
-  }
+  const entries: LogEntry[] = useMemo(() => {
+    return logs.map((log) => ({
+      id: log.id,
+      date: log.created_at,
+      title: log.title,
+      category: log.category,
+      affiliation: log.affiliation,
+      content: log.content,
+    }));
+  }, [logs]);
 
   return (
     <div className="min-h-screen">
       <AppHeader
         title="USJR × OIT Research Log"
-        subtitle="Academic prototype for logging research updates (mock data only)."
+        subtitle="Academic prototype rendering research logs from a local Django API."
       />
-      <NavBar
-        activePage={activePage}
-        onNavigate={setActivePage}
-        isLoggedIn={sessionAffiliation !== null}
-        onRequestLogin={() => requestLogin("timeline")}
-        onRequestAddEntry={requestAddEntry}
-        isAddEntryOpen={isAddEntryOpen}
-      />
+      <NavBar activePage={activePage} onNavigate={setActivePage} />
       <main className="mx-auto max-w-5xl px-4 py-6">
-        {activePage === "timeline" ? <TimelinePage entries={entries} /> : <AboutPage />}
+        {activePage === "timeline" ? (
+          <>
+            {isLoading ? (
+              <p className="text-sm text-zinc-600 dark:text-zinc-300">Loading research logs…</p>
+            ) : errorMessage ? (
+              <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
+            ) : null}
+            <TimelinePage entries={entries} />
+          </>
+        ) : (
+          <AboutPage />
+        )}
       </main>
-
-      <LoginModal
-        isOpen={isLoginOpen}
-        onClose={() => setIsLoginOpen(false)}
-        onLogin={handleLogin}
-      />
-
-      <AddEntryModal
-        isOpen={isAddEntryOpen}
-        affiliation={sessionAffiliation}
-        onClose={() => setIsAddEntryOpen(false)}
-        onAdd={handleAdd}
-        onRequestLogin={() => requestLogin(activePage)}
-      />
     </div>
   );
 }

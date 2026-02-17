@@ -5,7 +5,7 @@ import type { Affiliation, LogEntry, ResearchCategory } from "../types/LogEntry"
 type SortOrder = "newest" | "oldest";
 type AllOr<T extends string> = "all" | T;
 
-const categories: ResearchCategory[] = ["Rectenna", "MPPT", "AI", "Meeting"];
+const categories: ResearchCategory[] = ["Rectenna", "MPPT", "AI", "Meeting", "Other"];
 const affiliations: Affiliation[] = ["USJR", "OIT"];
 
 interface Props {

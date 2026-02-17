@@ -1,4 +1,4 @@
-export type ResearchCategory = "Rectenna" | "MPPT" | "AI" | "Meeting";
+export type ResearchCategory = "Rectenna" | "MPPT" | "AI" | "Meeting" | "Other";
 
 export type Affiliation = "USJR" | "OIT";
 
