@@ -1,15 +1,15 @@
 import { AppHeader } from "./components/layout/AppHeader";
 import { NavBar, type PageKey } from "./components/layout/NavBar";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AboutPage } from "./pages/AboutPage";
 import { TimelinePage } from "./pages/TimelinePage";
-import type { Affiliation, LogEntry } from "./types/LogEntry";
+import type { LogEntry } from "./types/LogEntry";
 import type { ResearchLog } from "./types/ResearchLog";
-import { mockLogs } from "./data/mockLogs";
-import { LoginModal } from "./components/layout/LoginModal";
-import { AddEntryModal } from "./components/layout/AddEntryModal";
 import { useLanguage } from "./context/LanguageContext";
 import { translations } from "./i18n/translations";
+import type { ResearchLogAffiliation } from "./types/ResearchLog";
+import { LoginModal } from "./components/layout/LoginModal";
+import { AddEntryModal } from "./components/layout/AddEntryModal";
 
 const RESEARCHLOG_API_URL = "http://127.0.0.1:8000/api/researchlog/";
 
@@ -19,44 +19,66 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const [sessionAffiliation, setSessionAffiliation] = useState<ResearchLogAffiliation | null>(null);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isAddEntryOpen, setIsAddEntryOpen] = useState(false);
+  const [openAddAfterLogin, setOpenAddAfterLogin] = useState(false);
+
   const { language, toggleLanguage } = useLanguage();
   const t = translations[language];
 
-  function requestLogin(nextPage: PageKey = "timeline") {
-    setPageAfterLogin(nextPage);
+  const loadLogs = useCallback(async (signal?: AbortSignal) => {
+    try {
+      setIsLoading(true);
+      setErrorMessage(null);
+
+      const res = await fetch(RESEARCHLOG_API_URL, { signal });
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status} ${res.statusText}`);
+      }
+
+      const data = (await res.json()) as ResearchLog[];
+      setLogs(Array.isArray(data) ? data : []);
+    } catch (err) {
+      if ((err as any)?.name === "AbortError") return;
+      console.error("Failed to fetch research logs:", err);
+      setErrorMessage("Could not load research logs from the local API.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  function requestLogin() {
     setIsLoginOpen(true);
   }
 
-  useEffect(() => {
-    let isCancelled = false;
-
-    async function load() {
-      try {
-        setIsLoading(true);
-        setErrorMessage(null);
-
-        const res = await fetch(RESEARCHLOG_API_URL);
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status} ${res.statusText}`);
-        }
-
-        const data = (await res.json()) as ResearchLog[];
-        if (isCancelled) return;
-        setLogs(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error("Failed to fetch research logs:", err);
-        if (isCancelled) return;
-        setErrorMessage("Could not load research logs from the local API.");
-      } finally {
-        if (!isCancelled) setIsLoading(false);
-      }
+  function requestAddEntry() {
+    if (sessionAffiliation) {
+      setIsAddEntryOpen(true);
+      return;
     }
 
-    void load();
+    setOpenAddAfterLogin(true);
+    requestLogin();
+  }
+
+  function handleLogin(affiliation: ResearchLogAffiliation) {
+    setSessionAffiliation(affiliation);
+    setIsLoginOpen(false);
+
+    if (openAddAfterLogin) {
+      setOpenAddAfterLogin(false);
+      setIsAddEntryOpen(true);
+    }
+  }
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void loadLogs(controller.signal);
     return () => {
-      isCancelled = true;
+      controller.abort();
     };
-  }, []);
+  }, [loadLogs]);
 
   const entries: LogEntry[] = useMemo(() => {
     return logs.map((log) => ({
@@ -66,26 +88,21 @@ function App() {
       category: log.category,
       affiliation: log.affiliation,
       content: log.content,
+      attachments: log.attachments ?? [],
     }));
   }, [logs]);
 
   return (
     <div className="min-h-screen relative">
-      {/* Language Toggle */}
-      <button
-        onClick={toggleLanguage}
-        className="absolute right-4 top-4 rounded-md border border-zinc-300 bg-white px-3 py-1 text-sm text-zinc-900 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
-      >
-        {language === "en" ? "日本語" : "English"}
-      </button>
-
       <AppHeader title={t.appTitle} subtitle={t.appSubtitle} />
 
       <NavBar
         activePage={activePage}
         onNavigate={setActivePage}
+        language={language}
+        onToggleLanguage={toggleLanguage}
         isLoggedIn={sessionAffiliation !== null}
-        onRequestLogin={() => requestLogin("timeline")}
+        onRequestLogin={requestLogin}
         onRequestAddEntry={requestAddEntry}
         isAddEntryOpen={isAddEntryOpen}
       />
@@ -97,12 +114,29 @@ function App() {
             ) : errorMessage ? (
               <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
             ) : null}
-            <TimelinePage entries={entries} />
+            <TimelinePage entries={entries} onRefresh={() => void loadLogs()} isRefreshing={isLoading} />
           </>
         ) : (
           <AboutPage />
         )}
       </main>
+
+      <LoginModal
+        isOpen={isLoginOpen}
+        language={language}
+        onClose={() => setIsLoginOpen(false)}
+        onLogin={handleLogin}
+      />
+
+      {sessionAffiliation ? (
+        <AddEntryModal
+          isOpen={isAddEntryOpen}
+          language={language}
+          affiliation={sessionAffiliation}
+          onClose={() => setIsAddEntryOpen(false)}
+          onCreated={(created) => setLogs((prev) => [created, ...prev])}
+        />
+      ) : null}
     </div>
   );
 }

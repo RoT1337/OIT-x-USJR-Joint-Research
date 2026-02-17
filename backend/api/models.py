@@ -21,3 +21,16 @@ class ResearchLog(models.Model):
 
 	def __str__(self) -> str:
 		return self.title
+
+
+class ResearchAttachment(models.Model):
+	research_log = models.ForeignKey(
+		ResearchLog,
+		on_delete=models.CASCADE,
+		related_name="attachments",
+	)
+	file = models.FileField(upload_to="research_attachments/")
+	uploaded_at = models.DateTimeField(auto_now_add=True)
+
+	def __str__(self) -> str:
+		return f"Attachment {self.id} for {self.research_log_id}"

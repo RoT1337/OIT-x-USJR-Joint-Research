@@ -2,10 +2,15 @@ export const translations = {
   en: {
     appTitle: "USJR × OIT Research Log",
     appSubtitle:
-      "Academic prototype for logging research updates (mock data only).",
+      "Academic prototype for viewing research updates.",
 
     timeline: "Timeline",
     about: "About",
+
+    refresh: "Refresh",
+
+  attachments: "Attachments",
+  download: "Download",
 
     loginDescription: "No authentication is implemented. This sets a local session for prototyping.",
     cancel: "Cancel",
@@ -41,9 +46,11 @@ export const translations = {
     sortOldest: "Sort: Oldest → Newest",
     toggleSort: "Toggle sort",
 
-    mockData: "entries (mock data)",
+    mockData: "entries",
     japanesePlaceholder:
       "Japanese translation: placeholder only (no AI in this phase).",
+
+    japaneseSummaryComingSoon: "[ Japanese summary (AI-assisted - coming soon) ]",
 
     noEntries: "No entries yet.",
     showDetails: "Show details",
@@ -54,16 +61,22 @@ export const translations = {
       MPPT: "MPPT",
       AI: "AI",
       Meeting: "Meeting",
+      Other: "Other",
     },
   },
 
   jp: {
     appTitle: "USJR × OIT 研究ログ",
     appSubtitle:
-      "研究更新を記録するための学術プロトタイプ（モックデータのみ）。",
+      "研究更新を閲覧するための学術プロトタイプ。",
 
     timeline: "タイムライン",
     about: "概要",
+
+    refresh: "更新",
+
+  attachments: "添付ファイル",
+  download: "ダウンロード",
 
     loginDescription: "認証は実装されていません。UI検証用のローカルセッションを設定します。",
     cancel: "キャンセル",
@@ -99,9 +112,11 @@ export const translations = {
     sortOldest: "並び替え：古い順 → 新しい順",
     toggleSort: "並び替え切替",
 
-    mockData: "件（モックデータ）",
+    mockData: "件",
     japanesePlaceholder:
       "日本語翻訳：プレースホルダーのみ（本フェーズではAI未実装）。",
+
+    japaneseSummaryComingSoon: "［日本語要約（AI補助・近日対応）］",
 
     noEntries: "エントリーはまだありません。",
     showDetails: "詳細を表示",
@@ -112,6 +127,7 @@ export const translations = {
       MPPT: "MPPT",
       AI: "AI",
       Meeting: "会議",
+      Other: "その他",
     },
   },
 };

@@ -12,6 +12,42 @@ export function LogCard({ entry }: Props) {
   const { language } = useLanguage();
   const t = translations[language];
 
+  const attachments = entry.attachments ?? [];
+
+  const isImageUrl = (url: string) => {
+    const cleaned = url.split("?")[0].split("#")[0];
+    return /\.(png|jpg|jpeg|gif|webp|bmp|svg)$/i.test(cleaned);
+  };
+
+  const getFilename = (url: string) => {
+    try {
+      const cleaned = url.split("?")[0].split("#")[0];
+      const parts = cleaned.split("/").filter(Boolean);
+      const last = parts[parts.length - 1] ?? "file";
+      return decodeURIComponent(last);
+    } catch {
+      return "file";
+    }
+  };
+
+  const imageAttachmentUrls = attachments
+    .map((a) => a.file_url)
+    .filter((u): u is string => Boolean(u))
+    .filter(isImageUrl)
+    .slice(0, 2);
+
+  const dateLabel = (() => {
+    const d = new Date(entry.date);
+    if (Number.isNaN(d.getTime())) return entry.date;
+
+    const formatter = new Intl.DateTimeFormat(language === "jp" ? "ja-JP" : "en-GB", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    return formatter.format(d);
+  })();
+
   const hasDetails = Boolean(entry.details && entry.details.trim().length > 0);
   const images = entry.images ?? [];
 
@@ -37,7 +73,7 @@ export function LogCard({ entry }: Props) {
 
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <span className="rounded-md border border-zinc-200 bg-white px-2 py-0.5 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200">
-          {entry.date}
+          {dateLabel}
         </span>
 
         <span className="rounded-md border border-zinc-200 bg-white px-2 py-0.5 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200">
@@ -62,6 +98,15 @@ export function LogCard({ entry }: Props) {
         {content}
       </p>
 
+      <button
+        type="button"
+        disabled
+        className="mt-3 inline-flex items-center rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-700 opacity-60 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200"
+        title="Coming soon"
+      >
+        {t.japaneseSummaryComingSoon}
+      </button>
+
       {images.length > 0 ? (
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           {images.map((img) => (
@@ -82,6 +127,64 @@ export function LogCard({ entry }: Props) {
               ) : null}
             </figure>
           ))}
+        </div>
+      ) : null}
+
+      {attachments.length > 0 ? (
+        <div className="mt-3">
+          <h4 className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+            {t.attachments}
+          </h4>
+
+          {imageAttachmentUrls.length > 0 ? (
+            <div className="mt-2 grid gap-3 sm:grid-cols-2">
+              {imageAttachmentUrls.map((url) => (
+                <figure
+                  key={url}
+                  className="overflow-hidden rounded-md border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950"
+                >
+                  <a href={url} target="_blank" rel="noreferrer">
+                    <img
+                      src={url}
+                      alt={getFilename(url)}
+                      className="h-auto w-full"
+                      loading="lazy"
+                    />
+                  </a>
+                </figure>
+              ))}
+            </div>
+          ) : null}
+
+          <ul className="mt-2 space-y-1">
+            {attachments.map((a) => {
+              const url = a.file_url;
+              if (!url) return null;
+              const filename = getFilename(url);
+              const downloadHref = a.download_url ?? url;
+
+              return (
+                <li key={a.id} className="text-sm">
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-zinc-900 underline underline-offset-2 hover:text-zinc-700 dark:text-zinc-100 dark:hover:text-zinc-200"
+                  >
+                    {filename}
+                  </a>
+                  <span className="mx-2 text-zinc-400">·</span>
+                  <a
+                    href={downloadHref}
+                    download
+                    className="text-sm text-zinc-700 underline underline-offset-2 hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-50"
+                  >
+                    {t.download}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       ) : null}
 

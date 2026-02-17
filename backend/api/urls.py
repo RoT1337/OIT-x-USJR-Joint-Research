@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .viewsets import ResearchLogViewSet
+from .views import attachment_download
 
 researchlog_list = ResearchLogViewSet.as_view(
 	{
@@ -22,6 +23,9 @@ urlpatterns = [
 	# Primary endpoints
 	path("api/researchlogs/", researchlog_list, name="researchlog-list"),
 	path("api/researchlogs/<int:pk>/", researchlog_detail, name="researchlog-detail"),
+
+	# Attachments
+	path("api/attachments/<int:pk>/download/", attachment_download, name="researchattachment-download"),
 
 	# Alias endpoints (for simpler singular naming)
 	path("api/researchlog/", researchlog_list, name="researchlog-list-alias"),

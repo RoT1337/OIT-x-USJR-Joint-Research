@@ -12,9 +12,11 @@ const affiliations: Affiliation[] = ["USJR", "OIT"];
 
 interface Props {
   entries: LogEntry[];
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 }
 
-export function TimelinePage({ entries }: Props) {
+export function TimelinePage({ entries, onRefresh, isRefreshing }: Props) {
   const { language } = useLanguage();
   const t = translations[language];
 
@@ -125,18 +127,32 @@ export function TimelinePage({ entries }: Props) {
 
       {/* Main Section */}
       <section>
-        <div>
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-            {t.timeline}
-          </h2>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
-            {sortedEntries.length} {t.mockData}
-            {selectedMonth !== "all" ||
-            selectedCategory !== "all" ||
-            selectedAffiliation !== "all"
-              ? ` · ${t.filtered}`
-              : ""}
-          </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+              {t.timeline}
+            </h2>
+            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
+              {sortedEntries.length} {t.mockData}
+              {selectedMonth !== "all" ||
+              selectedCategory !== "all" ||
+              selectedAffiliation !== "all"
+                ? ` · ${t.filtered}`
+                : ""}
+            </p>
+          </div>
+
+          {onRefresh ? (
+            <button
+              type="button"
+              onClick={onRefresh}
+              disabled={Boolean(isRefreshing)}
+              className="inline-flex items-center rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-900 hover:bg-zinc-50 disabled:opacity-60 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
+              title={t.refresh}
+            >
+              {t.refresh}
+            </button>
+          ) : null}
         </div>
 
         {/* Filters */}
@@ -214,9 +230,14 @@ export function TimelinePage({ entries }: Props) {
           </button>
         </div>
 
-        <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-300">
-          {t.japanesePlaceholder}
-        </p>
+        <button
+          type="button"
+          disabled
+          className="mt-3 inline-flex items-center rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-700 opacity-60 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200"
+          title="Coming soon"
+        >
+          {t.japaneseSummaryComingSoon}
+        </button>
 
         <div className="mt-3">
           <TimelineFeed entries={sortedEntries} />

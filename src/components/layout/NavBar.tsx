@@ -1,19 +1,30 @@
 import { ThemeToggle } from "./ThemeToggle";
-import { useLanguage } from "../../context/LanguageContext";
 import { translations } from "../../i18n/translations";
+import type { Language } from "../../context/LanguageContext";
 
 export type PageKey = "timeline" | "about";
 
 interface Props {
   activePage: PageKey;
   onNavigate: (page: PageKey) => void;
+  language: Language;
+  onToggleLanguage: () => void;
+  isLoggedIn: boolean;
+  onRequestLogin: () => void;
+  onRequestAddEntry: () => void;
+  isAddEntryOpen: boolean;
 }
 
 export function NavBar({
   activePage,
   onNavigate,
+  language,
+  onToggleLanguage,
+  isLoggedIn,
+  onRequestLogin,
+  onRequestAddEntry,
+  isAddEntryOpen,
 }: Props) {
-  const { language } = useLanguage();
   const t = translations[language];
 
   return (
@@ -52,9 +63,17 @@ export function NavBar({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() =>
-                isLoggedIn ? onRequestAddEntry() : onRequestLogin()
-              }
+              onClick={onToggleLanguage}
+              className="inline-flex items-center rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
+              aria-label="Toggle language"
+              title="Toggle language"
+            >
+              {language === "en" ? "日本語" : "English"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => (isLoggedIn ? onRequestAddEntry() : onRequestLogin())}
               className={
                 isLoggedIn
                   ? isAddEntryOpen
@@ -62,6 +81,7 @@ export function NavBar({
                     : "rounded-md border border-transparent px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-800"
                   : "rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
               }
+              title={isLoggedIn ? "Add entry" : "Login"}
             >
               {isLoggedIn ? t.addEntry : t.login}
             </button>

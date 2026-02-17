@@ -8,6 +8,13 @@ export interface LogImage {
   caption?: string;
 }
 
+export interface LogAttachment {
+  id: number;
+  file_url: string | null;
+  download_url?: string;
+  uploaded_at: string;
+}
+
 export interface LogEntry {
   id: number;
   date: string;
@@ -27,4 +34,6 @@ export interface LogEntry {
   detailsJP?: string;
 
   images?: LogImage[];
+
+  attachments?: LogAttachment[];
 }
