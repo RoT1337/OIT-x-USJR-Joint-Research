@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 # Media
-usjr-oit-research-log\backend\media\research_attachments
+backend/media/research_attachments/
