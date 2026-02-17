@@ -1,6 +1,8 @@
 import { TimelineFeed } from "../components/TimelineFeed";
 import { useMemo, useState } from "react";
 import type { Affiliation, LogEntry, ResearchCategory } from "../types/LogEntry";
+import { useLanguage } from "../context/LanguageContext";
+import { translations } from "../i18n/translations";
 
 type SortOrder = "newest" | "oldest";
 type AllOr<T extends string> = "all" | T;
@@ -13,10 +15,15 @@ interface Props {
 }
 
 export function TimelinePage({ entries }: Props) {
+  const { language } = useLanguage();
+  const t = translations[language];
+
   const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
   const [selectedMonth, setSelectedMonth] = useState<string>("all");
-  const [selectedCategory, setSelectedCategory] = useState<AllOr<ResearchCategory>>("all");
-  const [selectedAffiliation, setSelectedAffiliation] = useState<AllOr<Affiliation>>("all");
+  const [selectedCategory, setSelectedCategory] =
+    useState<AllOr<ResearchCategory>>("all");
+  const [selectedAffiliation, setSelectedAffiliation] =
+    useState<AllOr<Affiliation>>("all");
 
   const monthItems = useMemo(() => {
     const set = new Set<string>();
@@ -29,33 +36,32 @@ export function TimelinePage({ entries }: Props) {
     const keys = Array.from(set);
     keys.sort((a, b) => a.localeCompare(b));
 
-    const formatter = new Intl.DateTimeFormat(undefined, { month: "short", year: "numeric" });
+    const formatter = new Intl.DateTimeFormat(
+      language === "jp" ? "ja-JP" : undefined,
+      { month: "short", year: "numeric" }
+    );
+
     return keys.map((key) => {
-      const [year, month] = key.split("-").map((v) => Number(v));
-      const label = Number.isFinite(year) && Number.isFinite(month)
-        ? formatter.format(new Date(year, month - 1, 1))
-        : key;
+      const [year, month] = key.split("-").map(Number);
+      const label =
+        Number.isFinite(year) && Number.isFinite(month)
+          ? formatter.format(new Date(year, month - 1, 1))
+          : key;
       return { key, label };
     });
-  }, [entries]);
+  }, [entries, language]);
 
   const filteredEntries = useMemo(() => {
     return entries.filter((e) => {
-      if (selectedMonth !== "all") {
-        if (!(typeof e.date === "string" && e.date.startsWith(selectedMonth))) return false;
-      }
-
-      if (selectedCategory !== "all") {
-        if (e.category !== selectedCategory) return false;
-      }
-
-      if (selectedAffiliation !== "all") {
-        if (e.affiliation !== selectedAffiliation) return false;
-      }
-
+      if (selectedMonth !== "all" && !e.date.startsWith(selectedMonth))
+        return false;
+      if (selectedCategory !== "all" && e.category !== selectedCategory)
+        return false;
+      if (selectedAffiliation !== "all" && e.affiliation !== selectedAffiliation)
+        return false;
       return true;
     });
-  }, [entries, selectedAffiliation, selectedCategory, selectedMonth]);
+  }, [entries, selectedMonth, selectedCategory, selectedAffiliation]);
 
   const sortedEntries = useMemo(() => {
     const copy = [...filteredEntries];
@@ -69,22 +75,16 @@ export function TimelinePage({ entries }: Props) {
 
   return (
     <div className="md:grid md:grid-cols-[220px_1fr] md:gap-6">
+      {/* Sidebar */}
       <aside className="md:pt-1">
-        <div className="mb-3 flex items-center justify-between md:hidden">
-          <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">Months</p>
-          <button
-            type="button"
-            onClick={() => setSelectedMonth("all")}
-            className="text-sm text-sky-700 hover:underline dark:text-sky-300"
-          >
-            Clear
-          </button>
-        </div>
-
         <nav aria-label="Months" className="md:sticky md:top-4">
           <div className="hidden md:block">
-            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">Months</p>
-            <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-300">Click a month to filter updates.</p>
+            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+              {t.months}
+            </p>
+            <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-300">
+              {t.monthsHint}
+            </p>
           </div>
 
           <ol className="mt-3 space-y-2 border-l border-zinc-200 pl-4 dark:border-zinc-800">
@@ -99,9 +99,10 @@ export function TimelinePage({ entries }: Props) {
                 }
               >
                 <span className="h-2 w-2 rounded-full bg-zinc-400 dark:bg-zinc-500" />
-                All months
+                {t.allMonths}
               </button>
             </li>
+
             {monthItems.map((m) => (
               <li key={m.key}>
                 <button
@@ -122,44 +123,56 @@ export function TimelinePage({ entries }: Props) {
         </nav>
       </aside>
 
+      {/* Main Section */}
       <section>
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Timeline</h2>
-            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
-              {sortedEntries.length} entr{sortedEntries.length === 1 ? "y" : "ies"} (mock data)
-              {selectedMonth !== "all" || selectedCategory !== "all" || selectedAffiliation !== "all"
-                ? " · filtered"
-                : ""}
-            </p>
-          </div>
+        <div>
+          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+            {t.timeline}
+          </h2>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
+            {sortedEntries.length} {t.mockData}
+            {selectedMonth !== "all" ||
+            selectedCategory !== "all" ||
+            selectedAffiliation !== "all"
+              ? ` · ${t.filtered}`
+              : ""}
+          </p>
         </div>
 
+        {/* Filters */}
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           <label className="space-y-1">
-            <span className="text-xs font-medium text-zinc-700 dark:text-zinc-200">Category</span>
+            <span className="text-xs font-medium">{t.category}</span>
             <select
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value as AllOr<ResearchCategory>)}
-              className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50"
+              onChange={(e) =>
+                setSelectedCategory(
+                  e.target.value as AllOr<ResearchCategory>
+                )
+              }
+              className="w-full rounded-md border px-3 py-2 text-sm"
             >
-              <option value="all">All</option>
+              <option value="all">{t.all}</option>
               {categories.map((c) => (
                 <option key={c} value={c}>
-                  {c}
+                  {t.categories[c]}
                 </option>
               ))}
             </select>
           </label>
 
           <label className="space-y-1">
-            <span className="text-xs font-medium text-zinc-700 dark:text-zinc-200">Affiliation</span>
+            <span className="text-xs font-medium">{t.affiliation}</span>
             <select
               value={selectedAffiliation}
-              onChange={(e) => setSelectedAffiliation(e.target.value as AllOr<Affiliation>)}
-              className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50"
+              onChange={(e) =>
+                setSelectedAffiliation(
+                  e.target.value as AllOr<Affiliation>
+                )
+              }
+              className="w-full rounded-md border px-3 py-2 text-sm"
             >
-              <option value="all">All</option>
+              <option value="all">{t.all}</option>
               {affiliations.map((a) => (
                 <option key={a} value={a}>
                   {a}
@@ -176,28 +189,33 @@ export function TimelinePage({ entries }: Props) {
                 setSelectedCategory("all");
                 setSelectedAffiliation("all");
               }}
-              className="inline-flex w-full items-center justify-center rounded-md border border-zinc-200 bg-white px-2.5 py-2 text-sm text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
+              className="w-full rounded-md border px-3 py-2 text-sm"
             >
-              Clear filters
+              {t.clearFilters}
             </button>
           </div>
         </div>
 
-        <div className="mt-3 flex items-center justify-between border-b border-zinc-200 pb-3 dark:border-zinc-800">
+        {/* Sort */}
+        <div className="mt-3 flex items-center justify-between border-b pb-3">
           <p className="text-sm text-zinc-600 dark:text-zinc-300">
-            Sort: {sortOrder === "newest" ? "Newest → Oldest" : "Oldest → Newest"}
+            {sortOrder === "newest" ? t.sortNewest : t.sortOldest}
           </p>
           <button
             type="button"
-            className="inline-flex items-center rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
-            onClick={() => setSortOrder((prev) => (prev === "newest" ? "oldest" : "newest"))}
+            onClick={() =>
+              setSortOrder((prev) =>
+                prev === "newest" ? "oldest" : "newest"
+              )
+            }
+            className="rounded-md border px-3 py-1 text-sm"
           >
-            Toggle sort
+            {t.toggleSort}
           </button>
         </div>
 
         <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-300">
-          Japanese translation: placeholder only (no AI in this phase).
+          {t.japanesePlaceholder}
         </p>
 
         <div className="mt-3">

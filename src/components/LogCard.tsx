@@ -1,5 +1,7 @@
 import type { LogEntry } from "../types/LogEntry";
 import { useState } from "react";
+import { useLanguage } from "../context/LanguageContext";
+import { translations } from "../i18n/translations";
 
 interface Props {
   entry: LogEntry;
@@ -7,8 +9,20 @@ interface Props {
 
 export function LogCard({ entry }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const { language } = useLanguage();
+  const t = translations[language];
+
   const hasDetails = Boolean(entry.details && entry.details.trim().length > 0);
   const images = entry.images ?? [];
+
+  const title =
+    language === "jp" && entry.titleJP ? entry.titleJP : entry.title;
+
+  const content =
+    language === "jp" && entry.contentJP ? entry.contentJP : entry.content;
+
+  const details =
+    language === "jp" && entry.detailsJP ? entry.detailsJP : entry.details;
 
   const affiliationBadgeClassName =
     entry.affiliation === "USJR"
@@ -17,22 +31,36 @@ export function LogCard({ entry }: Props) {
 
   return (
     <article className="border border-zinc-200 bg-white p-4 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-900">
-      <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">{entry.title}</h3>
+      <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
+        {title}
+      </h3>
+
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <span className="rounded-md border border-zinc-200 bg-white px-2 py-0.5 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200">
           {entry.date}
         </span>
+
         <span className="rounded-md border border-zinc-200 bg-white px-2 py-0.5 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200">
-          {entry.category}
+          {t.categories[entry.category]}
         </span>
-        <span className={`rounded-md border px-2 py-0.5 text-xs font-medium ${affiliationBadgeClassName}`}>
+
+        <span
+          className={`rounded-md border px-2 py-0.5 text-xs font-medium ${affiliationBadgeClassName}`}
+        >
           {entry.affiliation}
         </span>
+
         {entry.authorName ? (
-          <span className="text-xs text-zinc-600 dark:text-zinc-300">{entry.authorName}</span>
+          <span className="text-xs text-zinc-600 dark:text-zinc-300">
+            {entry.authorName}
+          </span>
         ) : null}
       </div>
-      <p className="mt-3 text-sm leading-relaxed text-zinc-900 dark:text-zinc-50">{entry.content}</p>
+
+      {/* 🔥 THIS WAS MISSING */}
+      <p className="mt-3 text-sm leading-relaxed text-zinc-900 dark:text-zinc-50">
+        {content}
+      </p>
 
       {images.length > 0 ? (
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -41,7 +69,12 @@ export function LogCard({ entry }: Props) {
               key={img.src}
               className="overflow-hidden rounded-md border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950"
             >
-              <img src={img.src} alt={img.alt} className="h-auto w-full" loading="lazy" />
+              <img
+                src={img.src}
+                alt={img.alt}
+                className="h-auto w-full"
+                loading="lazy"
+              />
               {img.caption ? (
                 <figcaption className="border-t border-zinc-200 px-3 py-2 text-xs text-zinc-600 dark:border-zinc-800 dark:text-zinc-300">
                   {img.caption}
@@ -56,18 +89,20 @@ export function LogCard({ entry }: Props) {
         <div className="mt-3">
           <button
             type="button"
-            className="inline-flex items-center rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-900"
+            className="inline-flex items-center rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50"
             onClick={() => setIsExpanded((prev) => !prev)}
-            aria-expanded={isExpanded}
           >
-            {isExpanded ? "Hide details" : "Show details"}
+            {isExpanded ? t.hideDetails : t.showDetails}
           </button>
-          {isExpanded ? (
+
+          {isExpanded && (
             <>
               <hr className="my-3 border-zinc-200 dark:border-zinc-800" />
-              <p className="text-sm text-zinc-700 dark:text-zinc-200">{entry.details}</p>
+              <p className="text-sm text-zinc-700 dark:text-zinc-200">
+                {details}
+              </p>
             </>
-          ) : null}
+          )}
         </div>
       ) : null}
     </article>

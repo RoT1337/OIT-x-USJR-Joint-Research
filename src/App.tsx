@@ -3,8 +3,13 @@ import { NavBar, type PageKey } from "./components/layout/NavBar";
 import { useEffect, useMemo, useState } from "react";
 import { AboutPage } from "./pages/AboutPage";
 import { TimelinePage } from "./pages/TimelinePage";
-import type { LogEntry } from "./types/LogEntry";
+import type { Affiliation, LogEntry } from "./types/LogEntry";
 import type { ResearchLog } from "./types/ResearchLog";
+import { mockLogs } from "./data/mockLogs";
+import { LoginModal } from "./components/layout/LoginModal";
+import { AddEntryModal } from "./components/layout/AddEntryModal";
+import { useLanguage } from "./context/LanguageContext";
+import { translations } from "./i18n/translations";
 
 const RESEARCHLOG_API_URL = "http://127.0.0.1:8000/api/researchlog/";
 
@@ -13,6 +18,14 @@ function App() {
   const [logs, setLogs] = useState<ResearchLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const { language, toggleLanguage } = useLanguage();
+  const t = translations[language];
+
+  function requestLogin(nextPage: PageKey = "timeline") {
+    setPageAfterLogin(nextPage);
+    setIsLoginOpen(true);
+  }
 
   useEffect(() => {
     let isCancelled = false;
@@ -57,12 +70,25 @@ function App() {
   }, [logs]);
 
   return (
-    <div className="min-h-screen">
-      <AppHeader
-        title="USJR × OIT Research Log"
-        subtitle="Academic prototype rendering research logs from a local Django API."
+    <div className="min-h-screen relative">
+      {/* Language Toggle */}
+      <button
+        onClick={toggleLanguage}
+        className="absolute right-4 top-4 rounded-md border border-zinc-300 bg-white px-3 py-1 text-sm text-zinc-900 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
+      >
+        {language === "en" ? "日本語" : "English"}
+      </button>
+
+      <AppHeader title={t.appTitle} subtitle={t.appSubtitle} />
+
+      <NavBar
+        activePage={activePage}
+        onNavigate={setActivePage}
+        isLoggedIn={sessionAffiliation !== null}
+        onRequestLogin={() => requestLogin("timeline")}
+        onRequestAddEntry={requestAddEntry}
+        isAddEntryOpen={isAddEntryOpen}
       />
-      <NavBar activePage={activePage} onNavigate={setActivePage} />
       <main className="mx-auto max-w-5xl px-4 py-6">
         {activePage === "timeline" ? (
           <>
