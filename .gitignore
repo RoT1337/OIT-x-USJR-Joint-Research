@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Media
+usjr-oit-research-log\backend\media\research_attachments
