@@ -20,6 +20,18 @@ from django.urls import include, path, re_path
 from django.views.generic import TemplateView
 from django.views.static import serve as static_serve
 from django.conf import settings
+import logging
+from pathlib import Path
+
+
+logger = logging.getLogger(__name__)
+
+
+def media_serve(request, path: str):
+    media_root = Path(settings.MEDIA_ROOT)
+    full_path = media_root / path
+    logger.info("MEDIA request path=%s full_path=%s exists=%s", path, full_path, full_path.exists())
+    return static_serve(request, path, document_root=str(media_root))
 
 
 def spa_index(request):
@@ -38,7 +50,7 @@ urlpatterns = [
     path('', include('api.urls')),
 
     # Media (Render production needs this; download endpoint alone isn't enough for previews)
-    re_path(r"^media/(?P<path>.*)$", static_serve, {"document_root": settings.MEDIA_ROOT}),
+    re_path(r"^media/(?P<path>.*)$", media_serve),
 
     # React SPA (served from dist/index.html)
     re_path(
