@@ -157,7 +157,11 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_DIRS = [FRONTEND_DIST_DIR] if FRONTEND_DIST_DIR.exists() else []
+STATICFILES_DIRS = [FRONTEND_DIST_DIR]
+
+# Render safety: serve /static/* from STATICFILES_DIRS even if collectstatic artifacts
+# aren't present (prevents blank page from missing Vite assets).
+WHITENOISE_USE_FINDERS = True
 
 STORAGES = {
     "default": {
