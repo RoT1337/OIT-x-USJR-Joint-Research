@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { ResearchLog, ResearchLogAffiliation, ResearchLogCategory } from "../../types/ResearchLog";
 import type { Language } from "../../context/LanguageContext";
 import { translations } from "../../i18n/translations";
+import { apiUrl } from "../../api";
 
 interface Props {
   isOpen: boolean;
@@ -22,7 +23,7 @@ export function AddEntryModal({ isOpen, language, affiliation, onClose, onCreate
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const apiUrl = useMemo(() => "http://127.0.0.1:8000/api/researchlog/", []);
+  const endpoint = useMemo(() => apiUrl("/api/researchlog/"), []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -84,7 +85,7 @@ export function AddEntryModal({ isOpen, language, affiliation, onClose, onCreate
               setIsSubmitting(true);
               setSubmitError(null);
 
-              const res = await fetch(apiUrl, {
+              const res = await fetch(endpoint, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
