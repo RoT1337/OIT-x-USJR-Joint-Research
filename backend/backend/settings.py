@@ -78,6 +78,13 @@ MIDDLEWARE = [
 
 CORS_ALLOW_ALL_ORIGINS = True
 
+# Render proxy header
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://oit-x-usjr-joint-research.onrender.com",
+]
+
 ROOT_URLCONF = 'backend.urls'
 
 # React build output (Vite) is expected at <repo>/dist
