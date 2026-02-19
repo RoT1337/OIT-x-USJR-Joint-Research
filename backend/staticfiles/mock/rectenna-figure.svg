@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-label="Rectenna figure placeholder">
+  <rect width="960" height="540" fill="#ffffff"/>
+  <rect x="40" y="40" width="880" height="460" fill="#fafafa" stroke="#d4d4d8"/>
+  <text x="60" y="90" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial" font-size="28" fill="#18181b">Rectenna (Placeholder Figure)</text>
+  <text x="60" y="128" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial" font-size="16" fill="#52525b">Use this slot for a schematic screenshot or model diagram.</text>
+
+  <g stroke="#52525b" stroke-width="3" fill="none">
+    <path d="M120 230h160"/>
+    <path d="M280 230c30-40 60-40 90 0s60 40 90 0"/>
+    <path d="M460 230h80"/>
+    <path d="M540 200v60"/>
+    <path d="M600 230h160"/>
+    <rect x="760" y="200" width="90" height="60" rx="8"/>
+  </g>
+
+  <g fill="#52525b" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial" font-size="14">
+    <text x="120" y="260">Antenna</text>
+    <text x="320" y="260">Matching</text>
+    <text x="470" y="260">Diode</text>
+    <text x="780" y="260">Load</text>
+  </g>
+
+  <text x="60" y="470" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial" font-size="14" fill="#71717a">File: public/mock/rectenna-figure.svg</text>
+</svg>

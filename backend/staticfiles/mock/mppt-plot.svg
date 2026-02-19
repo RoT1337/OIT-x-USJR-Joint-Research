@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-label="MPPT plot placeholder">
+  <rect width="960" height="540" fill="#ffffff"/>
+  <rect x="40" y="40" width="880" height="460" fill="#fafafa" stroke="#d4d4d8"/>
+  <text x="60" y="90" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial" font-size="28" fill="#18181b">MPPT (Placeholder Plot)</text>
+  <text x="60" y="128" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial" font-size="16" fill="#52525b">Use this slot for a simulation plot or measurement screenshot.</text>
+
+  <g stroke="#a1a1aa" stroke-width="2">
+    <line x1="120" y1="430" x2="840" y2="430"/>
+    <line x1="120" y1="180" x2="120" y2="430"/>
+    <line x1="120" y1="350" x2="840" y2="350"/>
+    <line x1="120" y1="270" x2="840" y2="270"/>
+    <line x1="120" y1="190" x2="840" y2="190"/>
+  </g>
+
+  <path d="M120 410 C 240 360, 320 300, 420 320 S 640 420, 840 260" fill="none" stroke="#0ea5e9" stroke-width="4"/>
+
+  <g fill="#52525b" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial" font-size="14">
+    <text x="120" y="455">time</text>
+    <text x="85" y="185" transform="rotate(-90 85 185)">power</text>
+  </g>
+
+  <text x="60" y="470" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial" font-size="14" fill="#71717a">File: public/mock/mppt-plot.svg</text>
+</svg>

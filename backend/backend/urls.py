@@ -15,13 +15,34 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import include, path
+from django.http import HttpResponse
+from django.urls import include, path, re_path
+from django.views.generic import TemplateView
 from django.conf import settings
 from django.conf.urls.static import static
+
+
+def spa_index(request):
+    index_path = settings.FRONTEND_DIST_DIR / "index.html"
+    if index_path.exists():
+        return TemplateView.as_view(template_name="index.html")(request)
+
+    return HttpResponse(
+        "Frontend build not found. Run `npm run build` to generate dist/.",
+        status=404,
+        content_type="text/plain",
+    )
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('api.urls')),
+
+    # React SPA (served from dist/index.html)
+    re_path(
+        r"^(?!api/|admin/|media/|static/).*$",
+        spa_index,
+        name="spa",
+    ),
 ]
 
 if settings.DEBUG:
