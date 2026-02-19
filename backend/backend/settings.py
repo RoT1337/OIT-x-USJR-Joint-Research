@@ -78,6 +78,13 @@ MIDDLEWARE = [
 
 CORS_ALLOW_ALL_ORIGINS = True
 
+# Render proxy header
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://oit-x-usjr-joint-research.onrender.com",
+]
+
 ROOT_URLCONF = 'backend.urls'
 
 # React build output (Vite) is expected at <repo>/dist
@@ -150,9 +157,16 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_DIRS = [FRONTEND_DIST_DIR] if FRONTEND_DIST_DIR.exists() else []
+STATICFILES_DIRS = [FRONTEND_DIST_DIR]
+
+# Render safety: serve /static/* from STATICFILES_DIRS even if collectstatic artifacts
+# aren't present (prevents blank page from missing Vite assets).
+WHITENOISE_USE_FINDERS = True
 
 STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     }
@@ -160,8 +174,48 @@ STORAGES = {
 
 # Media files (uploads)
 
-MEDIA_URL = "media/"
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = os.environ.get("MEDIA_URL", "/media/")
+
+_render_disk_path = os.environ.get("RENDER_DISK_PATH") or os.environ.get("RENDER_PERSISTENT_DISK_PATH")
+_default_media_root = (
+    Path(_render_disk_path) / "media"
+    if (not DEBUG and _render_disk_path)
+    else (Path("/tmp/media") if not DEBUG else (BASE_DIR / "media"))
+)
+MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", str(_default_media_root)))
+
+# In production, fail fast if MEDIA_ROOT isn't creatable (prevents silent 500s on upload)
+if not DEBUG:
+    try:
+        MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise ImproperlyConfigured(
+            f"MEDIA_ROOT '{MEDIA_ROOT}' is not writable/creatable. "
+            "On Render, attach a Persistent Disk and set MEDIA_ROOT to its mount path "
+            "(commonly /var/data/media)."
+        ) from exc
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+    "loggers": {
+        "django.request": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+    },
+}
 
 
 # Default primary key field type
