@@ -171,7 +171,14 @@ STORAGES = {
 # Media files (uploads)
 
 MEDIA_URL = os.environ.get("MEDIA_URL", "/media/")
-MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", str(BASE_DIR / "media")))
+
+_render_disk_path = os.environ.get("RENDER_DISK_PATH") or os.environ.get("RENDER_PERSISTENT_DISK_PATH")
+_default_media_root = (
+    Path(_render_disk_path) / "media"
+    if (not DEBUG and _render_disk_path)
+    else (Path("/tmp/media") if not DEBUG else (BASE_DIR / "media"))
+)
+MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", str(_default_media_root)))
 
 # In production, fail fast if MEDIA_ROOT isn't creatable (prevents silent 500s on upload)
 if not DEBUG:
