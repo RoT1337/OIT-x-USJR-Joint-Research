@@ -167,8 +167,41 @@ STORAGES = {
 
 # Media files (uploads)
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = os.environ.get("MEDIA_URL", "/media/")
+MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", str(BASE_DIR / "media")))
+
+# In production, fail fast if MEDIA_ROOT isn't creatable (prevents silent 500s on upload)
+if not DEBUG:
+    try:
+        MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise ImproperlyConfigured(
+            f"MEDIA_ROOT '{MEDIA_ROOT}' is not writable/creatable. "
+            "On Render, attach a Persistent Disk and set MEDIA_ROOT to its mount path "
+            "(commonly /var/data/media)."
+        ) from exc
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+    "loggers": {
+        "django.request": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+    },
+}
 
 
 # Default primary key field type
