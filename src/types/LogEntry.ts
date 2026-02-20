@@ -24,8 +24,11 @@ export interface LogEntry {
 
   category: ResearchCategory;
   affiliation: Affiliation;
+  categories?: ResearchCategory[];
+  affiliations?: Affiliation[];
 
   authorName?: string;
+  authorEmail?: string;
 
   content: string;
   contentJP?: string;

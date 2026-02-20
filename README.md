@@ -1,134 +1,61 @@
-# USJR × OIT Research Log (Prototype)
+# USJR × OIT Research Log System
 
-## Overview
-This project is a **prototype web application** developed as part of the **USJR–OIT Joint Research Collaboration**.
-
-The goal of the application is to provide a **shared, visual research activity log** that allows students and professors to:
-- track ongoing research progress,
-- review recent updates at a glance,
-- and maintain alignment across institutions during an exploratory research phase.
-
-This is an **internal academic coordination tool**, not a public-facing product.
-
----
-
-## What This Prototype Demonstrates
-- A **timeline-style research log** showing recent updates
-- Clear metadata for each entry:
-  - date
-  - research category (e.g., Rectenna, MPPT, AI, Meetings)
-  - affiliation (USJR / OIT)
-- Emphasis on **scanability** and clarity for supervisors
-- A placeholder for **AI-assisted Japanese translation** (UI only, no real translation yet)
-
-> Note: All data is currently **mock data** for demonstration purposes.
-
----
-
-## Project Scope (Current Phase)
-### Included
-- React + TypeScript frontend
-- Timeline feed of research log entries
-- Simple sorting (newest ↔ oldest)
-- Clean, academic-style UI
-
-### Not Included (By Design)
-- Authentication or user accounts
-- Backend or database
-- Hardware data integration
-- Real AI or translation APIs
-- Full documentation or CMS features
-
-These may be explored in later phases.
-
----
+Production-oriented research log for the USJR–OIT joint collaboration. It provides a shared, chronological “lab notebook” timeline with categories/affiliations, attachments, and a Django Admin workflow.
 
 ## Tech Stack
-- **Frontend:** React + TypeScript
-- **Build Tool:** Vite
-- **Styling:** Tailwind CSS (academic, minimal; neutral palette)
-- **Data:** Local mock data (no backend)
+- Frontend: React + TypeScript (Vite) + Tailwind
+- Backend: Django + Django REST Framework
+- Auth: Google OAuth (Django Allauth) with allowlisted emails/domains
+- Static: WhiteNoise (Django serves the built frontend in production)
 
----
-
-## Installation & Running Locally
+## Local Development
 
 ### Prerequisites
-- **Node.js** (version 18 or higher recommended)
-- **npm** (comes with Node.js)
+- Node.js 18+
+- Python 3.11+ (recommended)
 
-Check your versions:
-```bash
-node -v
-npm -v
+### Backend (Django)
+From the repo root:
 
-```
+0. Set required auth env vars (recommended even in dev):
+   - `OAUTH_ALLOWED_DOMAINS=oit.ac.jp,usjr.edu.ph`
+   - `OAUTH_AFFILIATION_MAP=oit.ac.jp:OIT,usjr.edu.ph:USJR`
 
----
+   See `backend/.env.example` for a copy/paste template.
 
-## Setup Steps
+1. Install Python dependencies:
+   - `python -m pip install -r backend/requirements.txt`
 
-1. Clone the repository:
+2. Run migrations:
+   - `python backend/manage.py migrate`
 
-  ```bash
-  git clone <repository-url>
-  cd usjr-oit-research-log
-  ```
+3. (Optional) Create an admin user:
+   - `python backend/manage.py createsuperuser`
 
-2. Install dependencies:
+4. Start Django:
+   - `python backend/manage.py runserver`
 
-  ```bash
-  npm install
-  ```
+### Frontend
 
-  If you're on Windows PowerShell and you get an error like “running scripts is disabled”, use:
+There are two common workflows:
 
-  ```bash
-  npm.cmd install
-  ```
+**A) Production-like (recommended for auth):** build the frontend so Django serves it.
+- `npm install`
+- `npm run build`
+- Visit `http://127.0.0.1:8000/`
 
-3. Start the development server:
+**B) Vite dev server (UI iteration):**
+- `npm install`
+- `npm run dev`
+- Visit `http://127.0.0.1:5173/`
 
-  ```bash
-  npm run dev
-  ```
+Note: Google OAuth flows are handled by Django on `http://127.0.0.1:8000/`.
 
-  Windows PowerShell fallback:
+## Key URLs
+- Timeline UI (Django-served build): `http://127.0.0.1:8000/`
+- Admin: `http://127.0.0.1:8000/admin/`
+- API: `http://127.0.0.1:8000/api/researchlog/`
 
-  ```bash
-  npm.cmd run dev
-  ```
-
-4. Open your browser and go to:
-
-  - http://localhost:5173
-
----
-
-## Common Commands
-
-- Dev server: `npm run dev` (PowerShell fallback: `npm.cmd run dev`)
-- Production build: `npm run build` (PowerShell fallback: `npm.cmd run build`)
-- Preview production build: `npm run preview` (PowerShell fallback: `npm.cmd run preview`)
-
----
-
-## Notes for Teammates
-
-- Tailwind CSS is already configured; you should not need to install anything beyond `npm install`.
-- Data is mock-only (no backend). Research log entries live in `src/data/mockLogs.ts` and types in `src/types/LogEntry.ts`.
-
----
-
-## Intended Audience
-- USJR student researchers (Computer Science background)
-- OIT professors and research staff
-- Mixed CS / Electrical Engineering audience
-- English-first, with consideration for Japanese accessibility
-
----
-
-## Development Notes
-- This project prioritizes clarity over complexity
-- Features are intentionally limited to avoid scope creep
-- Architecture is designed to be extendable later if needed
+## Docs
+- See PROJECT_CONTEXT.md for the production context and deployment notes.
+- See PROJECT_MUSTHAVES.md for requirements and scope guardrails.

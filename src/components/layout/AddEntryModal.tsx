@@ -1,29 +1,127 @@
 import { useEffect, useMemo, useState } from "react";
+import type { FormEvent } from "react";
 import type { ResearchLog, ResearchLogAffiliation, ResearchLogCategory } from "../../types/ResearchLog";
 import type { Language } from "../../context/LanguageContext";
 import { translations } from "../../i18n/translations";
-import { apiUrl } from "../../api";
+import { apiFetch, apiUrl } from "../../api";
 
 interface Props {
   isOpen: boolean;
   language: Language;
-  affiliation: ResearchLogAffiliation;
+  defaultAffiliation?: ResearchLogAffiliation;
   onClose: () => void;
   onCreated: (created: ResearchLog) => void;
+  onToast?: (tone: "success" | "info" | "error", message: string) => void;
 }
 
 const categories: ResearchLogCategory[] = ["Rectenna", "MPPT", "AI", "Meeting", "Other"];
 
-export function AddEntryModal({ isOpen, language, affiliation, onClose, onCreated }: Props) {
+export function AddEntryModal({
+  isOpen,
+  language,
+  defaultAffiliation,
+  onClose,
+  onCreated,
+  onToast,
+}: Props) {
   const t = translations[language];
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [titleError, setTitleError] = useState<string | null>(null);
   const [category, setCategory] = useState<ResearchLogCategory>("Rectenna");
+  const affiliation: ResearchLogAffiliation = defaultAffiliation ?? "USJR";
+  const [files, setFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const endpoint = useMemo(() => apiUrl("/api/researchlog/"), []);
+
+  async function uploadAttachments(logId: number, selected: File[]): Promise<boolean> {
+    if (selected.length === 0) return true;
+
+    let ok = true;
+    const uploadUrl = apiUrl(`/api/researchlog/${logId}/attachments/`);
+
+    for (const file of selected) {
+      const form = new FormData();
+      form.append("file", file);
+      const response = await apiFetch(uploadUrl, {
+        method: "POST",
+        body: form,
+      });
+      if (!response.ok) {
+        ok = false;
+      }
+    }
+
+    return ok;
+  }
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const cleanTitle = title.trim();
+    const cleanContent = content.trim();
+    if (!cleanTitle) {
+      setTitleError(t.titleRequired);
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setSubmitError(null);
+      setTitleError(null);
+
+      const response = await apiFetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: cleanTitle,
+          content: cleanContent,
+          category,
+          affiliation,
+          categories: [category],
+          affiliations: [affiliation],
+        }),
+      });
+
+      if (!response.ok) {
+        const text = await response.text().catch(() => "");
+        throw new Error(text || `HTTP ${response.status} ${response.statusText}`);
+      }
+
+      const created = (await response.json()) as ResearchLog;
+      const attachmentsOk = await uploadAttachments(created.id, files);
+
+      // Fetch the final log (includes attachment URLs).
+      let finalLog = created;
+      try {
+        const detail = await apiFetch(apiUrl(`/api/researchlog/${created.id}/`), { method: "GET" });
+        if (detail.ok) {
+          finalLog = (await detail.json()) as ResearchLog;
+        }
+      } catch {
+        // If detail fetch fails, still proceed with the created entry.
+      }
+
+      onCreated(finalLog);
+      if (!attachmentsOk && files.length > 0) {
+        onToast?.("error", t.toastAttachmentUploadFailed);
+      }
+
+      setTitle("");
+      setContent("");
+      setCategory("Rectenna");
+      setFiles([]);
+      onClose();
+    } catch (err) {
+      console.error("Failed to create research log:", err);
+      setSubmitError(t.toastEntryCreateFailed);
+      onToast?.("error", t.toastEntryCreateFailed);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   useEffect(() => {
     if (!isOpen) return;
@@ -45,7 +143,14 @@ export function AddEntryModal({ isOpen, language, affiliation, onClose, onCreate
   useEffect(() => {
     if (!isOpen) return;
     setSubmitError(null);
+    setTitleError(null);
+    setFiles([]);
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    // Affiliation is read-only once logged in.
+  }, [isOpen, defaultAffiliation]);
 
   if (!isOpen) return null;
 
@@ -62,7 +167,6 @@ export function AddEntryModal({ isOpen, language, affiliation, onClose, onCreate
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">{t.addEntry}</h2>
-            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">Adds a new entry via the local Django API.</p>
           </div>
           <button
             type="button"
@@ -75,46 +179,7 @@ export function AddEntryModal({ isOpen, language, affiliation, onClose, onCreate
 
         <form
           className="mt-5 space-y-4"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            const cleanTitle = title.trim();
-            const cleanContent = content.trim();
-            if (!cleanTitle || !cleanContent) return;
-
-            try {
-              setIsSubmitting(true);
-              setSubmitError(null);
-
-              const res = await fetch(endpoint, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  title: cleanTitle,
-                  content: cleanContent,
-                  category,
-                  affiliation,
-                }),
-              });
-
-              if (!res.ok) {
-                const text = await res.text().catch(() => "");
-                throw new Error(text || `HTTP ${res.status} ${res.statusText}`);
-              }
-
-              const created = (await res.json()) as ResearchLog;
-              onCreated(created);
-
-              setTitle("");
-              setContent("");
-              setCategory("Rectenna");
-              onClose();
-            } catch (err) {
-              console.error("Failed to create research log:", err);
-              setSubmitError("Could not create entry. Check the backend server and console.");
-            } finally {
-              setIsSubmitting(false);
-            }
-          }}
+          onSubmit={handleSubmit}
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="space-y-1">
@@ -134,7 +199,7 @@ export function AddEntryModal({ isOpen, language, affiliation, onClose, onCreate
 
             <div className="space-y-1">
               <span className="text-xs font-medium text-zinc-700 dark:text-zinc-200">{t.affiliation}</span>
-              <div className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50">
+              <div className="w-full rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50">
                 {affiliation}
               </div>
             </div>
@@ -144,10 +209,20 @@ export function AddEntryModal({ isOpen, language, affiliation, onClose, onCreate
             <span className="text-xs font-medium text-zinc-700 dark:text-zinc-200">{t.title}</span>
             <input
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder:text-zinc-500"
-              placeholder="Short description"
+              onChange={(e) => {
+                setTitle(e.target.value);
+                if (titleError) setTitleError(null);
+              }}
+              className={
+                titleError
+                  ? "w-full rounded-md border border-red-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 dark:border-red-900/60 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder:text-zinc-500"
+                  : "w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder:text-zinc-500"
+              }
+              placeholder={t.titlePlaceholder}
             />
+            {titleError ? (
+              <p className="text-xs text-red-700 dark:text-red-300">{titleError}</p>
+            ) : null}
           </label>
 
           <label className="space-y-1">
@@ -157,7 +232,17 @@ export function AddEntryModal({ isOpen, language, affiliation, onClose, onCreate
               onChange={(e) => setContent(e.target.value)}
               rows={5}
               className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder:text-zinc-500"
-              placeholder="Lab-notebook style note"
+              placeholder={t.contentPlaceholder}
+            />
+          </label>
+
+          <label className="space-y-1">
+            <span className="text-xs font-medium text-zinc-700 dark:text-zinc-200">{t.attachments}</span>
+            <input
+              type="file"
+              multiple
+              onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
+              className="block w-full text-sm text-zinc-700 file:mr-3 file:rounded-md file:border file:border-zinc-200 file:bg-white file:px-3 file:py-1.5 file:text-sm file:text-zinc-900 hover:file:bg-zinc-50 dark:text-zinc-200 dark:file:border-zinc-800 dark:file:bg-zinc-900 dark:file:text-zinc-50 dark:hover:file:bg-zinc-800"
             />
           </label>
 
@@ -169,7 +254,7 @@ export function AddEntryModal({ isOpen, language, affiliation, onClose, onCreate
               disabled={isSubmitting}
               className="inline-flex items-center rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-900 hover:bg-emerald-100 disabled:opacity-60 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-100 dark:hover:bg-emerald-950/50"
             >
-              {isSubmitting ? "Saving…" : t.addEntry}
+              {isSubmitting ? t.saving : t.addEntry}
             </button>
           </div>
         </form>

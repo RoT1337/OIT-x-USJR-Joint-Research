@@ -5,9 +5,11 @@ import { translations } from "../i18n/translations";
 
 interface Props {
   entry: LogEntry;
+  canEdit?: boolean;
+  onEdit?: () => void;
 }
 
-export function LogCard({ entry }: Props) {
+export function LogCard({ entry, canEdit, onEdit }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { language } = useLanguage();
   const t = translations[language];
@@ -60,31 +62,61 @@ export function LogCard({ entry }: Props) {
   const details =
     language === "jp" && entry.detailsJP ? entry.detailsJP : entry.details;
 
-  const affiliationBadgeClassName =
-    entry.affiliation === "USJR"
+  const categoryTags =
+    entry.categories && entry.categories.length > 0
+      ? entry.categories
+      : [entry.category];
+
+  const affiliationTags =
+    entry.affiliations && entry.affiliations.length > 0
+      ? entry.affiliations
+      : [entry.affiliation];
+
+  const affiliationBadgeClassName = (affiliation: string) =>
+    affiliation === "USJR"
       ? "border-sky-200 bg-sky-50 text-sky-900 dark:border-sky-900/60 dark:bg-sky-950/30 dark:text-sky-100"
       : "border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-100";
 
   return (
-    <article className="border border-zinc-200 bg-white p-4 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-900">
-      <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
-        {title}
-      </h3>
+    <article className="border border-zinc-200 bg-white p-4 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-900">
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
+          {title}
+        </h3>
+
+        {canEdit && onEdit ? (
+          <button
+            type="button"
+            onClick={onEdit}
+            className="inline-flex items-center rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
+          >
+            {t.edit}
+          </button>
+        ) : null}
+      </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <span className="rounded-md border border-zinc-200 bg-white px-2 py-0.5 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200">
           {dateLabel}
         </span>
 
-        <span className="rounded-md border border-zinc-200 bg-white px-2 py-0.5 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200">
-          {t.categories[entry.category]}
-        </span>
+        {categoryTags.map((c) => (
+          <span
+            key={c}
+            className="rounded-md border border-zinc-200 bg-white px-2 py-0.5 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200"
+          >
+            {t.categories[c]}
+          </span>
+        ))}
 
-        <span
-          className={`rounded-md border px-2 py-0.5 text-xs font-medium ${affiliationBadgeClassName}`}
-        >
-          {entry.affiliation}
-        </span>
+        {affiliationTags.map((a) => (
+          <span
+            key={a}
+            className={`rounded-md border px-2 py-0.5 text-xs font-medium ${affiliationBadgeClassName(a)}`}
+          >
+            {a}
+          </span>
+        ))}
 
         {entry.authorName ? (
           <span className="text-xs text-zinc-600 dark:text-zinc-300">
