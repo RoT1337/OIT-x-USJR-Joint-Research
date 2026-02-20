@@ -21,11 +21,23 @@ The system prioritizes **clarity**, **scanability**, and **persistence** so supe
 - Create/view/update research log entries (CRUD)
 - Categories and affiliation metadata
 - Chronological timeline view (primary interface)
+- Author attribution (entries record the creating user when authenticated)
+- Content is optional (title remains required)
+
+### Authentication & Permissions
+- Google OAuth via Django Allauth (allowlisted emails/domains)
+- Session-based SPA auth (`/api/me/`, `/api/logout/`, CSRF helpers)
+- API policy:
+  - Anyone can read
+  - Create/update requires login
+  - Delete is admin-only
+- Affiliation-based edit permissions (configure `OAUTH_AFFILIATION_MAP` for strict enforcement)
 
 ### Attachments
 - Log entries can have file attachments (e.g., screenshots, PDFs)
 - Attachments are downloadable
 - Image attachments are previewed in the timeline UI (limited preview count per entry)
+- Authenticated users can upload attachments from the frontend when creating an entry
 
 ### Administration
 - Django Admin is the primary content management interface
@@ -52,16 +64,15 @@ The system prioritizes **clarity**, **scanability**, and **persistence** so supe
 - Attachments for supporting research artifacts
 
 ### Out of Scope (for now)
-- Real authentication and role-based permissions
 - Public uploads without authentication
 - Full CMS features (comments, threads, messaging)
 - Real-time collaboration
 
-## Near-Term Roadmap (Planned)
-- Weekly sub-filter within a selected month
-- Multiple tags (multi-select fixed list) for category and affiliation (requires backend schema update)
+## Near-Term Roadmap
+- Weekly sub-filter within a selected month (**implemented**)
+- Multiple tags (multi-select fixed list) for category and affiliation (**implemented**)
 
-## Auth-Gated Roadmap (Blocked Until Real Auth)
-- OAuth login with allowlisted emails
-- Affiliation-based edit permissions
-- Frontend attachment uploads alongside Add Entry
+## Auth-Gated Roadmap
+- OAuth login with allowlisted emails (**implemented**)
+- Affiliation-based edit permissions (**implemented**; configure `OAUTH_AFFILIATION_MAP`)
+- Frontend attachment uploads alongside Add Entry (**implemented**)

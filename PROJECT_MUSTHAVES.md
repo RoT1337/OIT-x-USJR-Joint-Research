@@ -40,11 +40,15 @@ The system must allow:
 Each entry must include:
 
 - Title
-- Content (detailed research note)
+- Content (optional; detailed research note)
 - Category (Rectenna, MPPT, AI, Meeting, Other)
 - Affiliation (USJR or OIT)
 - Created timestamp
 - Updated timestamp
+
+Recommended (current implementation supports this):
+
+- Author / created-by attribution
 
 Attachments (optional, supported in current system):
 
@@ -115,7 +119,7 @@ Initial stage:
 
 Note:
 
-- Until real authentication is implemented, any frontend “login” must remain clearly mock/prototype-only.
+- Real authentication is implemented via Google OAuth (allowlisted). Frontend login is not mock.
 
 ## 5) Explicit Non-Goals (Current Phase)
 
@@ -156,7 +160,7 @@ Potential future expansions:
 - Visualization of research trends
 - Multi-project support
 
-## 9) Stage 3+ Enhancements (Planned)
+## 9) Stage 3+ Enhancements
 
 These are agreed next steps for a more production-ready workflow. Some items are intentionally gated behind authentication to avoid opening public upload/edit surfaces.
 
@@ -166,10 +170,14 @@ These are agreed next steps for a more production-ready workflow. Some items are
 - The week filter must not change backend API behavior
 - The week filter must be derived from entry dates
 
+Status: implemented in the current system.
+
 ### 9.2) Multiple Tags (Data)
 
 - Allow multiple selections for category and affiliation (fixed list; multi-select)
 - Note: this requires a backend data model/API update (schema + migrations)
+
+Status: implemented in the current system.
 
 ### 9.3) Auth-Gated Features (Blocked Until Real Auth)
 
@@ -178,6 +186,11 @@ These are agreed next steps for a more production-ready workflow. Some items are
 - Frontend attachment upload alongside “Add Entry”
 
 These are not required for current implementation.
+
+Status: implemented. Notes:
+
+- OAuth allowlisted login is enforced via env vars.
+- Affiliation-based edit permissions can be strictly enforced by configuring `OAUTH_AFFILIATION_MAP`.
 
 ## 8) Design Philosophy
 

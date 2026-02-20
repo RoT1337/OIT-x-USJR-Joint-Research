@@ -51,7 +51,7 @@ export function LoginModal({ isOpen, language, onClose, onLogin }: Props) {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
+            className="rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
           >
             {t.cancel}
           </button>
@@ -87,7 +87,7 @@ export function LoginModal({ isOpen, language, onClose, onLogin }: Props) {
           <button
             type="button"
             onClick={() => onLogin(affiliation)}
-            className="inline-flex items-center rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-900 hover:bg-sky-100 dark:border-sky-900/60 dark:bg-sky-950/30 dark:text-sky-100 dark:hover:bg-sky-950/50"
+            className="inline-flex items-center rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-900 transition-colors hover:bg-sky-100 dark:border-sky-900/60 dark:bg-sky-950/30 dark:text-sky-100 dark:hover:bg-sky-950/50"
           >
             {t.continue}
           </button>
@@ -96,3 +96,4 @@ export function LoginModal({ isOpen, language, onClose, onLogin }: Props) {
     </div>
   );
 }
+

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 
@@ -37,7 +38,14 @@ class ResearchLog(models.Model):
 		OIT = "OIT", "OIT"
 
 	title = models.CharField(max_length=255)
-	content = models.TextField()
+	content = models.TextField(blank=True)
+	created_by = models.ForeignKey(
+		settings.AUTH_USER_MODEL,
+		null=True,
+		blank=True,
+		on_delete=models.SET_NULL,
+		related_name="research_logs",
+	)
 	category = models.CharField(max_length=32, choices=Category.choices)
 	affiliation = models.CharField(max_length=16, choices=Affiliation.choices)
 	categories = models.ManyToManyField(

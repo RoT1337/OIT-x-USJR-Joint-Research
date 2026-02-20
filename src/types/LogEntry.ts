@@ -28,6 +28,7 @@ export interface LogEntry {
   affiliations?: Affiliation[];
 
   authorName?: string;
+  authorEmail?: string;
 
   content: string;
   contentJP?: string;

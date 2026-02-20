@@ -15,9 +15,11 @@ interface Props {
   entries: LogEntry[];
   onRefresh?: () => void;
   isRefreshing?: boolean;
+  canEditEntry?: (entry: LogEntry) => boolean;
+  onRequestEdit?: (entry: LogEntry) => void;
 }
 
-export function TimelinePage({ entries, onRefresh, isRefreshing }: Props) {
+export function TimelinePage({ entries, onRefresh, isRefreshing, canEditEntry, onRequestEdit }: Props) {
   const { language } = useLanguage();
   const t = translations[language];
 
@@ -273,7 +275,7 @@ export function TimelinePage({ entries, onRefresh, isRefreshing }: Props) {
               type="button"
               onClick={onRefresh}
               disabled={Boolean(isRefreshing)}
-              className="inline-flex items-center rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-900 hover:bg-zinc-50 disabled:opacity-60 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
+              className="inline-flex items-center rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-900 transition-colors hover:bg-zinc-50 disabled:opacity-60 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
               title={t.refresh}
             >
               {t.refresh}
@@ -295,7 +297,7 @@ export function TimelinePage({ entries, onRefresh, isRefreshing }: Props) {
               </button>
             </div>
             <details className="group">
-              <summary className="flex cursor-pointer list-none items-center justify-between rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:hover:bg-zinc-900">
+              <summary className="flex cursor-pointer list-none items-center justify-between rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:hover:bg-zinc-900">
                 <span>
                   {selectedCategories.length === 0
                     ? t.all
@@ -333,7 +335,7 @@ export function TimelinePage({ entries, onRefresh, isRefreshing }: Props) {
               </button>
             </div>
             <details className="group">
-              <summary className="flex cursor-pointer list-none items-center justify-between rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:hover:bg-zinc-900">
+              <summary className="flex cursor-pointer list-none items-center justify-between rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:hover:bg-zinc-900">
                 <span>
                   {selectedAffiliations.length === 0
                     ? t.all
@@ -368,7 +370,7 @@ export function TimelinePage({ entries, onRefresh, isRefreshing }: Props) {
                 setSelectedCategories([]);
                 setSelectedAffiliations([]);
               }}
-              className="w-full rounded-md border px-3 py-2 text-sm"
+              className="w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
             >
               {t.clearFilters}
             </button>
@@ -387,7 +389,7 @@ export function TimelinePage({ entries, onRefresh, isRefreshing }: Props) {
                 prev === "newest" ? "oldest" : "newest"
               )
             }
-            className="rounded-md border px-3 py-1 text-sm"
+            className="rounded-md border border-zinc-200 bg-white px-3 py-1 text-sm text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
           >
             {t.toggleSort}
           </button>
@@ -403,7 +405,7 @@ export function TimelinePage({ entries, onRefresh, isRefreshing }: Props) {
         </button>
 
         <div className="mt-3">
-          <TimelineFeed entries={sortedEntries} />
+          <TimelineFeed entries={sortedEntries} canEditEntry={canEditEntry} onRequestEdit={onRequestEdit} />
         </div>
       </section>
     </div>

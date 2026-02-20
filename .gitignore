@@ -23,5 +23,13 @@ dist-ssr
 *.sln
 *.sw?
 
+# Python / Django
+__pycache__/
+*.py[cod]
+*.sqlite3
+.venv/
+.env
+.env.*
+
 # Media
 backend/media/research_attachments/

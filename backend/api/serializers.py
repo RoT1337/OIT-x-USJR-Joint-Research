@@ -34,6 +34,9 @@ class ResearchAttachmentSerializer(serializers.ModelSerializer):
 class ResearchLogSerializer(serializers.ModelSerializer):
     attachments = ResearchAttachmentSerializer(many=True, read_only=True)
 
+    created_by_name = serializers.SerializerMethodField()
+    created_by_email = serializers.SerializerMethodField()
+
     # Multi-tag fields (new). Keep legacy single fields as well.
     # Use M2M-aware fields (ListField would try to iterate ManyRelatedManager directly).
     categories = serializers.SlugRelatedField(
@@ -69,9 +72,23 @@ class ResearchLogSerializer(serializers.ModelSerializer):
             "affiliations",
             "created_at",
             "updated_at",
+            "created_by_name",
+            "created_by_email",
             "attachments",
         )
         read_only_fields = ("id", "created_at", "updated_at")
+
+    def get_created_by_name(self, obj: ResearchLog) -> str:
+        user = getattr(obj, "created_by", None)
+        if not user:
+            return ""
+        return user.get_full_name() or user.get_username() or ""
+
+    def get_created_by_email(self, obj: ResearchLog) -> str:
+        user = getattr(obj, "created_by", None)
+        if not user:
+            return ""
+        return getattr(user, "email", "") or ""
 
     def to_representation(self, instance: ResearchLog):
         data = super().to_representation(instance)

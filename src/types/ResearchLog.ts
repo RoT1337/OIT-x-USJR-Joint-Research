@@ -17,6 +17,8 @@ export interface ResearchLog {
   affiliation: ResearchLogAffiliation;
   categories?: ResearchLogCategory[];
   affiliations?: ResearchLogAffiliation[];
+  created_by_name?: string;
+  created_by_email?: string;
   created_at: string;
   updated_at: string;
   attachments?: ResearchAttachment[];

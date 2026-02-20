@@ -48,13 +48,14 @@ def spa_index(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('api.urls')),
+    path('accounts/', include('allauth.urls')),
 
     # Media (Render production needs this; download endpoint alone isn't enough for previews)
     re_path(r"^media/(?P<path>.*)$", media_serve),
 
     # React SPA (served from dist/index.html)
     re_path(
-        r"^(?!api/|admin/|media/|static/).*$",
+        r"^(?!api/|admin/|media/|static/|accounts/).*$",
         spa_index,
         name="spa",
     ),
