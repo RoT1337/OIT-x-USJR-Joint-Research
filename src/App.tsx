@@ -88,9 +88,7 @@ function App() {
     setIsLoginOpen(true);
   }
 
-  function continueWithGoogleLogin(affiliation: ResearchLogAffiliation) {
-    window.localStorage.setItem(PREFERRED_AFFILIATION_KEY, affiliation);
-    setPreferredAffiliation(affiliation);
+  function continueWithGoogleLogin() {
     window.localStorage.setItem(PENDING_LOGIN_TOAST_KEY, "1");
     window.location.assign(GOOGLE_LOGIN_URL);
   }
@@ -254,6 +252,7 @@ function App() {
           onClose={() => setIsAddEntryOpen(false)}
           onCreated={(created) => {
             setLogs((prev) => [created, ...prev]);
+            setPreferredAffiliation(created.affiliation);
             addToast("success", t.toastEntryCreated);
           }}
           onToast={(tone, message) => addToast(tone, message)}
@@ -277,9 +276,9 @@ function App() {
         isOpen={isLoginOpen}
         language={language}
         onClose={() => setIsLoginOpen(false)}
-        onLogin={(aff) => {
+        onLogin={() => {
           setIsLoginOpen(false);
-          continueWithGoogleLogin(aff);
+          continueWithGoogleLogin();
         }}
       />
 

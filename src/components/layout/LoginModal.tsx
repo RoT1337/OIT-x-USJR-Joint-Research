@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import type { ResearchLogAffiliation } from "../../types/ResearchLog";
+import { useEffect } from "react";
 import type { Language } from "../../context/LanguageContext";
 import { translations } from "../../i18n/translations";
 
@@ -7,12 +6,11 @@ interface Props {
   isOpen: boolean;
   language: Language;
   onClose: () => void;
-  onLogin: (affiliation: ResearchLogAffiliation) => void;
+  onLogin: () => void;
 }
 
 export function LoginModal({ isOpen, language, onClose, onLogin }: Props) {
   const t = translations[language];
-  const [affiliation, setAffiliation] = useState<ResearchLogAffiliation>("USJR");
 
   useEffect(() => {
     if (!isOpen) return;
@@ -56,37 +54,10 @@ export function LoginModal({ isOpen, language, onClose, onLogin }: Props) {
             {t.cancel}
           </button>
         </div>
-
-        <div className="mt-4 space-y-2">
-          <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">{t.affiliation}</p>
-          <div className="flex items-center gap-2">
-            <label className="inline-flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50">
-              <input
-                type="radio"
-                name="affiliation"
-                value="USJR"
-                checked={affiliation === "USJR"}
-                onChange={() => setAffiliation("USJR")}
-              />
-              USJR
-            </label>
-            <label className="inline-flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50">
-              <input
-                type="radio"
-                name="affiliation"
-                value="OIT"
-                checked={affiliation === "OIT"}
-                onChange={() => setAffiliation("OIT")}
-              />
-              OIT
-            </label>
-          </div>
-        </div>
-
         <div className="mt-5 flex items-center justify-end gap-2">
           <button
             type="button"
-            onClick={() => onLogin(affiliation)}
+            onClick={onLogin}
             className="inline-flex items-center rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-900 transition-colors hover:bg-sky-100 dark:border-sky-900/60 dark:bg-sky-950/30 dark:text-sky-100 dark:hover:bg-sky-950/50"
           >
             {t.continue}
