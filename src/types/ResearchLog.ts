@@ -15,6 +15,8 @@ export interface ResearchLog {
   content: string;
   category: ResearchLogCategory;
   affiliation: ResearchLogAffiliation;
+  categories?: ResearchLogCategory[];
+  affiliations?: ResearchLogAffiliation[];
   created_at: string;
   updated_at: string;
   attachments?: ResearchAttachment[];

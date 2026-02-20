@@ -1,5 +1,29 @@
 from django.db import models
 
+
+class CategoryTag(models.Model):
+	key = models.CharField(max_length=32, unique=True)
+	label = models.CharField(max_length=64)
+
+	class Meta:
+		verbose_name = "Category tag"
+		verbose_name_plural = "Category tags"
+
+	def __str__(self) -> str:
+		return self.label
+
+
+class AffiliationTag(models.Model):
+	key = models.CharField(max_length=16, unique=True)
+	label = models.CharField(max_length=64)
+
+	class Meta:
+		verbose_name = "Affiliation tag"
+		verbose_name_plural = "Affiliation tags"
+
+	def __str__(self) -> str:
+		return self.label
+
 class ResearchLog(models.Model):
 	class Category(models.TextChoices):
 		RECTENNA = "Rectenna", "Rectenna"
@@ -16,6 +40,16 @@ class ResearchLog(models.Model):
 	content = models.TextField()
 	category = models.CharField(max_length=32, choices=Category.choices)
 	affiliation = models.CharField(max_length=16, choices=Affiliation.choices)
+	categories = models.ManyToManyField(
+		CategoryTag,
+		blank=True,
+		related_name="research_logs",
+	)
+	affiliations = models.ManyToManyField(
+		AffiliationTag,
+		blank=True,
+		related_name="research_logs",
+	)
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 

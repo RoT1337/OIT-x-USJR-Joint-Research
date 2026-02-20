@@ -1,11 +1,12 @@
 import { TimelineFeed } from "../components/TimelineFeed";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Affiliation, LogEntry, ResearchCategory } from "../types/LogEntry";
 import { useLanguage } from "../context/LanguageContext";
 import { translations } from "../i18n/translations";
 
 type SortOrder = "newest" | "oldest";
-type AllOr<T extends string> = "all" | T;
+type WeekKey = "1" | "2" | "3" | "4" | "5";
+type AllOrWeek = "all" | WeekKey;
 
 const categories: ResearchCategory[] = ["Rectenna", "MPPT", "AI", "Meeting", "Other"];
 const affiliations: Affiliation[] = ["USJR", "OIT"];
@@ -22,10 +23,58 @@ export function TimelinePage({ entries, onRefresh, isRefreshing }: Props) {
 
   const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
   const [selectedMonth, setSelectedMonth] = useState<string>("all");
-  const [selectedCategory, setSelectedCategory] =
-    useState<AllOr<ResearchCategory>>("all");
-  const [selectedAffiliation, setSelectedAffiliation] =
-    useState<AllOr<Affiliation>>("all");
+  const [selectedWeek, setSelectedWeek] = useState<AllOrWeek>("all");
+  const [selectedCategories, setSelectedCategories] = useState<ResearchCategory[]>([]);
+  const [selectedAffiliations, setSelectedAffiliations] = useState<Affiliation[]>([]);
+
+  const toggleCategory = (category: ResearchCategory) => {
+    setSelectedCategories((prev) =>
+      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
+    );
+  };
+
+  const toggleAffiliation = (affiliation: Affiliation) => {
+    setSelectedAffiliations((prev) =>
+      prev.includes(affiliation)
+        ? prev.filter((a) => a !== affiliation)
+        : [...prev, affiliation]
+    );
+  };
+
+  const entryCategories = (entry: LogEntry): ResearchCategory[] => {
+    return entry.categories && entry.categories.length > 0
+      ? entry.categories
+      : [entry.category];
+  };
+
+  const entryAffiliations = (entry: LogEntry): Affiliation[] => {
+    return entry.affiliations && entry.affiliations.length > 0
+      ? entry.affiliations
+      : [entry.affiliation];
+  };
+
+  const matchesAny = <T extends string>(selected: T[], tags: T[]) => {
+    if (selected.length === 0) return true;
+    return selected.some((s) => tags.includes(s));
+  };
+
+  const getWeekKey = (dateString: string): WeekKey | null => {
+    const d = new Date(dateString);
+    if (Number.isNaN(d.getTime())) return null;
+    const day = d.getDate();
+    const week = Math.floor((day - 1) / 7) + 1;
+    if (week < 1 || week > 5) return null;
+    return String(week) as WeekKey;
+  };
+
+  const weekLabel = (week: WeekKey) => {
+    const n = Number(week);
+    const startDay = (n - 1) * 7 + 1;
+    const endDay = n * 7;
+    return language === "jp"
+      ? `第${n}週 (${startDay}–${endDay}日)`
+      : `Week ${n} (${startDay}–${endDay})`;
+  };
 
   const monthItems = useMemo(() => {
     const set = new Set<string>();
@@ -53,17 +102,45 @@ export function TimelinePage({ entries, onRefresh, isRefreshing }: Props) {
     });
   }, [entries, language]);
 
+  const weekItems = useMemo(() => {
+    if (selectedMonth === "all") return [] as { key: WeekKey; label: string }[];
+
+    const set = new Set<WeekKey>();
+    for (const entry of entries) {
+      if (!entry.date.startsWith(selectedMonth)) continue;
+      if (!matchesAny(selectedCategories, entryCategories(entry))) continue;
+      if (!matchesAny(selectedAffiliations, entryAffiliations(entry))) continue;
+
+      const wk = getWeekKey(entry.date);
+      if (wk) set.add(wk);
+    }
+
+    const keys = Array.from(set);
+    keys.sort((a, b) => Number(a) - Number(b));
+    return keys.map((k) => ({ key: k, label: weekLabel(k) }));
+  }, [entries, selectedMonth, selectedCategories, selectedAffiliations]);
+
+  useEffect(() => {
+    if (selectedWeek === "all") return;
+    if (weekItems.some((w) => w.key === selectedWeek)) return;
+    setSelectedWeek("all");
+  }, [selectedWeek, weekItems]);
+
   const filteredEntries = useMemo(() => {
     return entries.filter((e) => {
       if (selectedMonth !== "all" && !e.date.startsWith(selectedMonth))
         return false;
-      if (selectedCategory !== "all" && e.category !== selectedCategory)
-        return false;
-      if (selectedAffiliation !== "all" && e.affiliation !== selectedAffiliation)
-        return false;
+
+      if (selectedMonth !== "all" && selectedWeek !== "all") {
+        const wk = getWeekKey(e.date);
+        if (!wk || wk !== selectedWeek) return false;
+      }
+
+      if (!matchesAny(selectedCategories, entryCategories(e))) return false;
+      if (!matchesAny(selectedAffiliations, entryAffiliations(e))) return false;
       return true;
     });
-  }, [entries, selectedMonth, selectedCategory, selectedAffiliation]);
+  }, [entries, selectedMonth, selectedWeek, selectedCategories, selectedAffiliations]);
 
   const sortedEntries = useMemo(() => {
     const copy = [...filteredEntries];
@@ -93,7 +170,10 @@ export function TimelinePage({ entries, onRefresh, isRefreshing }: Props) {
             <li>
               <button
                 type="button"
-                onClick={() => setSelectedMonth("all")}
+                onClick={() => {
+                  setSelectedMonth("all");
+                  setSelectedWeek("all");
+                }}
                 className={
                   selectedMonth === "all"
                     ? "relative -ml-[19px] flex w-full items-center gap-3 rounded-md border border-sky-200 bg-sky-50 px-2 py-1.5 text-left text-sm font-medium text-sky-900 dark:border-sky-900/60 dark:bg-sky-950/30 dark:text-sky-100"
@@ -109,7 +189,10 @@ export function TimelinePage({ entries, onRefresh, isRefreshing }: Props) {
               <li key={m.key}>
                 <button
                   type="button"
-                  onClick={() => setSelectedMonth(m.key)}
+                  onClick={() => {
+                    setSelectedMonth(m.key);
+                    setSelectedWeek("all");
+                  }}
                   className={
                     selectedMonth === m.key
                       ? "relative -ml-[19px] flex w-full items-center gap-3 rounded-md border border-sky-200 bg-sky-50 px-2 py-1.5 text-left text-sm font-medium text-sky-900 dark:border-sky-900/60 dark:bg-sky-950/30 dark:text-sky-100"
@@ -122,6 +205,48 @@ export function TimelinePage({ entries, onRefresh, isRefreshing }: Props) {
               </li>
             ))}
           </ol>
+
+          {selectedMonth !== "all" ? (
+            <div className="mt-5">
+              <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+                {t.weeks}
+              </p>
+
+              <ol className="mt-3 space-y-2 border-l border-zinc-200 pl-4 dark:border-zinc-800">
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedWeek("all")}
+                    className={
+                      selectedWeek === "all"
+                        ? "relative -ml-[19px] flex w-full items-center gap-3 rounded-md border border-sky-200 bg-sky-50 px-2 py-1.5 text-left text-sm font-medium text-sky-900 dark:border-sky-900/60 dark:bg-sky-950/30 dark:text-sky-100"
+                        : "relative -ml-[19px] flex w-full items-center gap-3 rounded-md px-2 py-1.5 text-left text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                    }
+                  >
+                    <span className="h-2 w-2 rounded-full bg-zinc-400 dark:bg-zinc-500" />
+                    {t.allWeeks}
+                  </button>
+                </li>
+
+                {weekItems.map((w) => (
+                  <li key={w.key}>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedWeek(w.key)}
+                      className={
+                        selectedWeek === w.key
+                          ? "relative -ml-[19px] flex w-full items-center gap-3 rounded-md border border-sky-200 bg-sky-50 px-2 py-1.5 text-left text-sm font-medium text-sky-900 dark:border-sky-900/60 dark:bg-sky-950/30 dark:text-sky-100"
+                          : "relative -ml-[19px] flex w-full items-center gap-3 rounded-md px-2 py-1.5 text-left text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                      }
+                    >
+                      <span className="h-2 w-2 rounded-full bg-zinc-400 dark:bg-zinc-500" />
+                      {w.label}
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ) : null}
         </nav>
       </aside>
 
@@ -135,8 +260,9 @@ export function TimelinePage({ entries, onRefresh, isRefreshing }: Props) {
             <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
               {sortedEntries.length} {t.mockData}
               {selectedMonth !== "all" ||
-              selectedCategory !== "all" ||
-              selectedAffiliation !== "all"
+              selectedWeek !== "all" ||
+              selectedCategories.length > 0 ||
+              selectedAffiliations.length > 0
                 ? ` · ${t.filtered}`
                 : ""}
             </p>
@@ -157,53 +283,90 @@ export function TimelinePage({ entries, onRefresh, isRefreshing }: Props) {
 
         {/* Filters */}
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          <label className="space-y-1">
-            <span className="text-xs font-medium">{t.category}</span>
-            <select
-              value={selectedCategory}
-              onChange={(e) =>
-                setSelectedCategory(
-                  e.target.value as AllOr<ResearchCategory>
-                )
-              }
-              className="w-full rounded-md border px-3 py-2 text-sm"
-            >
-              <option value="all">{t.all}</option>
-              {categories.map((c) => (
-                <option key={c} value={c}>
-                  {t.categories[c]}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="space-y-1">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-medium">{t.category}</span>
+              <button
+                type="button"
+                onClick={() => setSelectedCategories([])}
+                className="text-xs underline underline-offset-2 text-zinc-700 hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-50"
+              >
+                {t.all}
+              </button>
+            </div>
+            <details className="group">
+              <summary className="flex cursor-pointer list-none items-center justify-between rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:hover:bg-zinc-900">
+                <span>
+                  {selectedCategories.length === 0
+                    ? t.all
+                    : `${selectedCategories.length} selected`}
+                </span>
+                <span className="text-zinc-500 group-open:rotate-180">▾</span>
+              </summary>
 
-          <label className="space-y-1">
-            <span className="text-xs font-medium">{t.affiliation}</span>
-            <select
-              value={selectedAffiliation}
-              onChange={(e) =>
-                setSelectedAffiliation(
-                  e.target.value as AllOr<Affiliation>
-                )
-              }
-              className="w-full rounded-md border px-3 py-2 text-sm"
-            >
-              <option value="all">{t.all}</option>
-              {affiliations.map((a) => (
-                <option key={a} value={a}>
-                  {a}
-                </option>
-              ))}
-            </select>
-          </label>
+              <div className="mt-2 rounded-md border border-zinc-200 bg-white p-3 text-sm text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50">
+                <div className="space-y-2">
+                  {categories.map((c) => (
+                    <label key={c} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedCategories.includes(c)}
+                        onChange={() => toggleCategory(c)}
+                      />
+                      <span>{t.categories[c]}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </details>
+          </div>
+
+          <div className="space-y-1">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-medium">{t.affiliation}</span>
+              <button
+                type="button"
+                onClick={() => setSelectedAffiliations([])}
+                className="text-xs underline underline-offset-2 text-zinc-700 hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-zinc-50"
+              >
+                {t.all}
+              </button>
+            </div>
+            <details className="group">
+              <summary className="flex cursor-pointer list-none items-center justify-between rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:hover:bg-zinc-900">
+                <span>
+                  {selectedAffiliations.length === 0
+                    ? t.all
+                    : `${selectedAffiliations.length} selected`}
+                </span>
+                <span className="text-zinc-500 group-open:rotate-180">▾</span>
+              </summary>
+
+              <div className="mt-2 rounded-md border border-zinc-200 bg-white p-3 text-sm text-zinc-900 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50">
+                <div className="space-y-2">
+                  {affiliations.map((a) => (
+                    <label key={a} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedAffiliations.includes(a)}
+                        onChange={() => toggleAffiliation(a)}
+                      />
+                      <span>{a}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </details>
+          </div>
 
           <div className="flex items-end">
             <button
               type="button"
               onClick={() => {
                 setSelectedMonth("all");
-                setSelectedCategory("all");
-                setSelectedAffiliation("all");
+                setSelectedWeek("all");
+                setSelectedCategories([]);
+                setSelectedAffiliations([]);
               }}
               className="w-full rounded-md border px-3 py-2 text-sm"
             >

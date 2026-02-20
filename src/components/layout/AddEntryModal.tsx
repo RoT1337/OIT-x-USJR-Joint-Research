@@ -93,6 +93,8 @@ export function AddEntryModal({ isOpen, language, affiliation, onClose, onCreate
                   content: cleanContent,
                   category,
                   affiliation,
+                  categories: [category],
+                  affiliations: [affiliation],
                 }),
               });
 

@@ -88,6 +88,8 @@ function App() {
       title: log.title,
       category: log.category,
       affiliation: log.affiliation,
+      categories: log.categories ?? [log.category],
+      affiliations: log.affiliations ?? [log.affiliation],
       content: log.content,
       attachments: log.attachments ?? [],
     }));

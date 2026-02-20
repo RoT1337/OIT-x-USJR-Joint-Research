@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ResearchAttachment, ResearchLog
+from .models import AffiliationTag, CategoryTag, ResearchAttachment, ResearchLog
 
 
 class ResearchAttachmentInline(admin.TabularInline):
@@ -14,8 +14,9 @@ class ResearchAttachmentInline(admin.TabularInline):
 class ResearchLogAdmin(admin.ModelAdmin):
 	inlines = (ResearchAttachmentInline,)
 	list_display = ("id", "title", "category", "affiliation", "created_at", "updated_at")
-	list_filter = ("category", "affiliation")
+	list_filter = ("category", "affiliation", "categories", "affiliations")
 	search_fields = ("title", "content")
+	filter_horizontal = ("categories", "affiliations")
 
 
 @admin.register(ResearchAttachment)
@@ -23,3 +24,15 @@ class ResearchAttachmentAdmin(admin.ModelAdmin):
 	list_display = ("id", "research_log", "file", "uploaded_at")
 	list_filter = ("uploaded_at",)
 	search_fields = ("research_log__title",)
+
+
+@admin.register(CategoryTag)
+class CategoryTagAdmin(admin.ModelAdmin):
+	list_display = ("id", "key", "label")
+	search_fields = ("key", "label")
+
+
+@admin.register(AffiliationTag)
+class AffiliationTagAdmin(admin.ModelAdmin):
+	list_display = ("id", "key", "label")
+	search_fields = ("key", "label")

@@ -46,6 +46,12 @@ Each entry must include:
 - Created timestamp
 - Updated timestamp
 
+Attachments (optional, supported in current system):
+
+- Zero or more file attachments (e.g., screenshots, PDFs)
+- Attachments must be downloadable
+- Image attachments should be previewable in the timeline UI
+
 Entries represent **research documentation**, not tasks.
 
 ### 3.2) Timeline / Chronological View
@@ -65,13 +71,17 @@ The timeline is the **primary interface**.
 - Admin is acceptable for early-stage content management
 - Custom frontend editing UI is optional in future phases
 
+Admin attachment management:
+
+- Admin must be able to upload/delete attachments linked to a log entry
+
 ### 3.4) Backend Infrastructure
 
 - Django backend
 - REST API for research entries
 - Persistent database (PostgreSQL preferred; SQLite acceptable during development)
 - Proper model structure for research logs
-- No complex relationships required at this stage
+- Minimal relationships only (attachments linked to entries)
 
 ### 3.5) Frontend Integration
 
@@ -81,6 +91,10 @@ The timeline is the **primary interface**.
 - Clean academic UI
 - Minimal color palette
 - No unnecessary UI frameworks
+
+Timeline filtering enhancements:
+
+- After selecting a month, show a week sub-filter for that month
 
 ### 3.6) Deployment
 
@@ -99,6 +113,10 @@ Initial stage:
 - No complex role hierarchy
 - Advanced authentication (e.g., institutional SSO) is out of scope for this phase
 
+Note:
+
+- Until real authentication is implemented, any frontend “login” must remain clearly mock/prototype-only.
+
 ## 5) Explicit Non-Goals (Current Phase)
 
 The following are intentionally excluded:
@@ -106,7 +124,7 @@ The following are intentionally excluded:
 - Task management features
 - Kanban boards
 - Comment threads
-- File uploads
+- End-user (public) uploads without authentication/authorization
 - Version control integration
 - Real-time collaboration
 - Messaging systems
@@ -131,12 +149,33 @@ The project is considered successful if:
 Potential future expansions:
 
 - Role-based access control
-- Entry tagging system
-- File attachment support (e.g., simulation outputs)
+- Multi-tag category/affiliation system (multi-select)
+- Frontend attachment uploads (requires real auth)
 - Research summary exports (PDF)
 - AI-assisted summary generation
 - Visualization of research trends
 - Multi-project support
+
+## 9) Stage 3+ Enhancements (Planned)
+
+These are agreed next steps for a more production-ready workflow. Some items are intentionally gated behind authentication to avoid opening public upload/edit surfaces.
+
+### 9.1) Weekly Sub-Filter (UI)
+
+- When a month is selected, show week-level sub-filters for that month
+- The week filter must not change backend API behavior
+- The week filter must be derived from entry dates
+
+### 9.2) Multiple Tags (Data)
+
+- Allow multiple selections for category and affiliation (fixed list; multi-select)
+- Note: this requires a backend data model/API update (schema + migrations)
+
+### 9.3) Auth-Gated Features (Blocked Until Real Auth)
+
+- OAuth login with allowlisted emails (institution-controlled access)
+- Affiliation-based permissions for editing log posts
+- Frontend attachment upload alongside “Add Entry”
 
 These are not required for current implementation.
 

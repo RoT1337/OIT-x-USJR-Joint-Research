@@ -36,6 +36,9 @@ export const translations = {
     monthsHint: "Click a month to filter updates.",
     allMonths: "All months",
 
+  weeks: "Weeks",
+  allWeeks: "All weeks",
+
     category: "Category",
     affiliation: "Affiliation",
     all: "All",
@@ -101,6 +104,9 @@ export const translations = {
     months: "月別",
     monthsHint: "月をクリックして更新を絞り込みます。",
     allMonths: "すべての月",
+
+  weeks: "週",
+  allWeeks: "すべての週",
 
     category: "カテゴリ",
     affiliation: "所属",
