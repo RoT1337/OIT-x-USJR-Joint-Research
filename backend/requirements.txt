@@ -8,3 +8,4 @@ gunicorn>=21.0,<23.0
 django-allauth>=0.60,<0.70
 cryptography>=41.0,<45.0
 requests>=2.31,<3.0
+PyJWT>=2.8,<3.0
