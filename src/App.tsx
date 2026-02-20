@@ -10,8 +10,9 @@ import { translations } from "./i18n/translations";
 import type { ResearchLogAffiliation } from "./types/ResearchLog";
 import { LoginModal } from "./components/layout/LoginModal";
 import { AddEntryModal } from "./components/layout/AddEntryModal";
+import { apiUrl } from "./api";
 
-const RESEARCHLOG_API_URL = "http://127.0.0.1:8000/api/researchlog/";
+const RESEARCHLOG_API_URL = apiUrl("/api/researchlog/");
 
 function App() {
   const [activePage, setActivePage] = useState<PageKey>("timeline");
