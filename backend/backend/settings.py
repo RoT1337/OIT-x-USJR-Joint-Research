@@ -237,16 +237,11 @@ _default_media_root = (
 )
 MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", str(_default_media_root)))
 
-# In production, fail fast if MEDIA_ROOT isn't creatable (prevents silent 500s on upload)
-if not DEBUG:
-    try:
-        MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
-    except OSError as exc:
-        raise ImproperlyConfigured(
-            f"MEDIA_ROOT '{MEDIA_ROOT}' is not writable/creatable. "
-            "On Render, attach a Persistent Disk and set MEDIA_ROOT to its mount path "
-            "(commonly /var/data/media)."
-        ) from exc
+# NOTE: We intentionally do not create/validate MEDIA_ROOT at import time.
+# On Render, the Persistent Disk is mounted for the runtime web process,
+# but is typically NOT mounted during the build phase. Creating MEDIA_ROOT
+# here would break management commands like collectstatic/migrate during build.
+# We validate/create MEDIA_ROOT on web startup (see backend/wsgi.py and asgi.py).
 
 
 LOGGING = {
