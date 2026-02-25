@@ -269,3 +269,6 @@ LOGGING = {
 # Default primary key field type
 # https://docs.djangoproject.com/en/stable/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# DeepL API key (for translation service)
+DEEPL_API_KEY = os.getenv("DEEPL_API_KEY", "90c31d3b-b429-4fc9-8fad-8835d32c2461:fx")
