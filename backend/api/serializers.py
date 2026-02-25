@@ -65,7 +65,10 @@ class ResearchLogSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "title",
+            "translated_title",
             "content",
+            "translated_content",
+            "translated_language",
             "category",
             "affiliation",
             "categories",

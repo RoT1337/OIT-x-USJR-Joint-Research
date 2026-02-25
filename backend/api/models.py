@@ -38,7 +38,10 @@ class ResearchLog(models.Model):
 		OIT = "OIT", "OIT"
 
 	title = models.CharField(max_length=255)
+	translated_title = models.CharField(max_length=255, blank=True, null=True)
 	content = models.TextField(blank=True)
+	translated_content = models.TextField(blank=True, null=True)
+	translated_language = models.CharField(max_length=8, blank=True, null=True)
 	created_by = models.ForeignKey(
 		settings.AUTH_USER_MODEL,
 		null=True,

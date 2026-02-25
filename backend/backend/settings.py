@@ -67,11 +67,13 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.microsoft',
 ]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'api.middleware.Redirect127ToLocalhostMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -129,7 +131,11 @@ SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "SCOPE": ["profile", "email"],
         "AUTH_PARAMS": {"access_type": "online"},
-    }
+    },
+    "microsoft": {
+        "SCOPE": ["openid", "profile", "email", "User.Read"],
+        "AUTH_PARAMS": {"prompt": "select_account"},
+    },
 }
 
 # Skip the plain intermediate allauth HTML page and redirect straight to Google.
@@ -269,3 +275,6 @@ LOGGING = {
 # Default primary key field type
 # https://docs.djangoproject.com/en/stable/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# DeepL API key (for translation service)
+DEEPL_API_KEY = os.getenv("DEEPL_API_KEY")
