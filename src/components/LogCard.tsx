@@ -130,15 +130,6 @@ export function LogCard({ entry, canEdit, onEdit }: Props) {
         {content}
       </p>
 
-      <button
-        type="button"
-        disabled
-        className="mt-3 inline-flex items-center rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-700 opacity-60 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200"
-        title="Coming soon"
-      >
-        {t.japaneseSummaryComingSoon}
-      </button>
-
       {images.length > 0 ? (
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           {images.map((img) => (
