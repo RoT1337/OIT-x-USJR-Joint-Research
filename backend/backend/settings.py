@@ -271,4 +271,4 @@ LOGGING = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # DeepL API key (for translation service)
-DEEPL_API_KEY = os.getenv("DEEPL_API_KEY", "90c31d3b-b429-4fc9-8fad-8835d32c2461:fx")
+DEEPL_API_KEY = os.getenv("DEEPL_API_KEY", "INSERT_KEY_HERE")
