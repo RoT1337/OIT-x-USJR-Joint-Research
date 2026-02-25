@@ -1,3 +1,6 @@
+import logging
+
+from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.response import Response
 
@@ -6,6 +9,9 @@ from .models import AffiliationTag, ResearchLog
 from .permissions import ResearchLogPermission
 from .serializers import ResearchLogSerializer
 from .services.translation_service import translate_text, TranslationError
+
+
+logger = logging.getLogger(__name__)
 
 
 class ResearchLogViewSet(viewsets.ModelViewSet):
@@ -27,7 +33,9 @@ class ResearchLogViewSet(viewsets.ModelViewSet):
 
         lang = request.query_params.get("lang")
 
-        if lang and lang.lower() == "jp":
+        has_deepl_key = bool(getattr(settings, "DEEPL_API_KEY", None))
+
+        if lang and lang.lower() == "jp" and has_deepl_key:
             for log in queryset:
                 if (
                     not log.translated_content
@@ -49,7 +57,7 @@ class ResearchLogViewSet(viewsets.ModelViewSet):
                             "updated_at",
                         ])
                     except TranslationError as exc:
-                        print("Translation failed:", exc)
+                        logger.warning("Translation failed: %s", exc)
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

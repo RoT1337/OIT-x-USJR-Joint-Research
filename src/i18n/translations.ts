@@ -12,10 +12,11 @@ export const translations = {
   attachments: "Attachments",
   download: "Download",
 
-    loginDescription: "Choose your affiliation, then continue with Google.",
+    loginDescription: "Continue with Google or Microsoft.",
     cancel: "Cancel",
     close: "Close",
-    continue: "Continue with Google",
+    continueWithGoogle: "Continue with Google",
+    continueWithMicrosoft: "Continue with Microsoft",
     
     login: "Login",
     logout: "Logout",
@@ -101,10 +102,11 @@ export const translations = {
   attachments: "添付ファイル",
   download: "ダウンロード",
 
-    loginDescription: "所属を選択してから、Googleで続行してください。",
+    loginDescription: "Google または Microsoft で続行してください。",
     cancel: "キャンセル",
     close: "閉じる",
-    continue: "Googleで続行",
+    continueWithGoogle: "Googleで続行",
+    continueWithMicrosoft: "Microsoftで続行",
     
     login: "ログイン",
     logout: "ログアウト",

@@ -5,7 +5,7 @@ Production-oriented research log for the USJR–OIT joint collaboration. It prov
 ## Tech Stack
 - Frontend: React + TypeScript (Vite) + Tailwind
 - Backend: Django + Django REST Framework
-- Auth: Google OAuth (Django Allauth) with allowlisted emails/domains
+- Auth: Google + Microsoft OAuth (Django Allauth) with allowlisted emails/domains
 - Static: WhiteNoise (Django serves the built frontend in production)
 
 ## Local Development
@@ -47,14 +47,50 @@ There are two common workflows:
 **B) Vite dev server (UI iteration):**
 - `npm install`
 - `npm run dev`
-- Visit `http://127.0.0.1:5173/`
+- Visit `http://localhost:5173/`
 
-Note: Google OAuth flows are handled by Django on `http://127.0.0.1:8000/`.
+For OAuth in dev when using the Vite server, ensure the frontend points at Django using `http://localhost:8000` (not `127.0.0.1`), otherwise Azure will reject the redirect URI.
+Set `VITE_API_BASE=http://localhost:8000` in `.env.development.local`.
+
+Note: OAuth flows (Google/Microsoft) are handled by Django on `http://localhost:8000/`.
+
+## Microsoft OAuth (Azure/Entra) Setup
+
+This project uses `django-allauth`'s Microsoft provider.
+
+### 1) Create an App Registration
+In Azure Portal → **Microsoft Entra ID** → **App registrations** → **New registration**.
+
+### 2) Add Redirect URIs
+In App Registration → **Authentication** → **Add a platform** → **Web**:
+
+- Local dev: `http://localhost:8000/accounts/microsoft/login/callback/`
+- Production: `https://<your-domain>/accounts/microsoft/login/callback/`
+
+### 3) Create a Client Secret
+In **Certificates & secrets** → **New client secret**.
+
+### 4) Add Graph Permission
+In **API permissions** → **Add a permission** → **Microsoft Graph** → **Delegated permissions**:
+- `User.Read`
+
+### 5) Configure Django SocialApp
+In Django Admin (`/admin/`) → **Social applications** → **Add**:
+- Provider: **Microsoft**
+- Client id: **Application (client) ID** from Azure (a GUID like `aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee`)
+- Secret key: **Client secret VALUE** from Azure (shown once when you create it; NOT the “Secret ID”)
+- Sites: add your active Site (controlled by `SITE_ID`)
+
+Dev note: In Django Admin → **Sites**, ensure the Site domain matches the hostname you use in the browser (e.g. `localhost:8000`). Mixing `127.0.0.1` and `localhost` commonly causes allauth “Third-Party Login Failure”.
+
+If you see `AADSTS700016` and the “application identifier” looks like `xxxx~xxxx...`, you likely pasted the **client secret** into the **Client id** field, or you’re signing into a different tenant than where the app was registered.
+
+Once configured, the frontend login modal will offer both Google and Microsoft sign-in.
 
 ## Key URLs
-- Timeline UI (Django-served build): `http://127.0.0.1:8000/`
-- Admin: `http://127.0.0.1:8000/admin/`
-- API: `http://127.0.0.1:8000/api/researchlog/`
+- Timeline UI (Django-served build): `http://localhost:8000/`
+- Admin: `http://localhost:8000/admin/`
+- API: `http://localhost:8000/api/researchlog/`
 
 ## Docs
 - See PROJECT_CONTEXT.md for the production context and deployment notes.

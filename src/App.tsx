@@ -17,6 +17,7 @@ const RESEARCHLOG_API_URL = (lang: string) =>
 const ME_API_URL = apiUrl("/api/me/");
 const LOGOUT_API_URL = apiUrl("/api/logout/");
 const GOOGLE_LOGIN_URL = apiUrl("/accounts/google/login/?process=login");
+const MICROSOFT_LOGIN_URL = apiUrl("/accounts/microsoft/login/?process=login");
 
 const PREFERRED_AFFILIATION_KEY = "preferredAffiliation";
 const PENDING_LOGIN_TOAST_KEY = "pendingLoginToast";
@@ -92,6 +93,11 @@ function App() {
   function continueWithGoogleLogin() {
     window.localStorage.setItem(PENDING_LOGIN_TOAST_KEY, "1");
     window.location.assign(GOOGLE_LOGIN_URL);
+  }
+
+  function continueWithMicrosoftLogin() {
+    window.localStorage.setItem(PENDING_LOGIN_TOAST_KEY, "1");
+    window.location.assign(MICROSOFT_LOGIN_URL);
   }
 
   function requestAddEntry() {
@@ -283,9 +289,13 @@ function App() {
         isOpen={isLoginOpen}
         language={language}
         onClose={() => setIsLoginOpen(false)}
-        onLogin={() => {
+        onLoginGoogle={() => {
           setIsLoginOpen(false);
           continueWithGoogleLogin();
+        }}
+        onLoginMicrosoft={() => {
+          setIsLoginOpen(false);
+          continueWithMicrosoftLogin();
         }}
       />
 

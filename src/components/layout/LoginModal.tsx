@@ -6,10 +6,11 @@ interface Props {
   isOpen: boolean;
   language: Language;
   onClose: () => void;
-  onLogin: () => void;
+  onLoginGoogle: () => void;
+  onLoginMicrosoft: () => void;
 }
 
-export function LoginModal({ isOpen, language, onClose, onLogin }: Props) {
+export function LoginModal({ isOpen, language, onClose, onLoginGoogle, onLoginMicrosoft }: Props) {
   const t = translations[language];
 
   useEffect(() => {
@@ -57,10 +58,17 @@ export function LoginModal({ isOpen, language, onClose, onLogin }: Props) {
         <div className="mt-5 flex items-center justify-end gap-2">
           <button
             type="button"
-            onClick={onLogin}
+            onClick={onLoginGoogle}
             className="inline-flex items-center rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-900 transition-colors hover:bg-sky-100 dark:border-sky-900/60 dark:bg-sky-950/30 dark:text-sky-100 dark:hover:bg-sky-950/50"
           >
-            {t.continue}
+            {t.continueWithGoogle}
+          </button>
+          <button
+            type="button"
+            onClick={onLoginMicrosoft}
+            className="inline-flex items-center rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-900 transition-colors hover:bg-sky-100 dark:border-sky-900/60 dark:bg-sky-950/30 dark:text-sky-100 dark:hover:bg-sky-950/50"
+          >
+            {t.continueWithMicrosoft}
           </button>
         </div>
       </div>
