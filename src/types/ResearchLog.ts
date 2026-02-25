@@ -12,7 +12,10 @@ export interface ResearchAttachment {
 export interface ResearchLog {
   id: number;
   title: string;
+  translated_title?: string | null;
   content: string;
+  translated_content?: string | null;
+  translated_language?: string | null;
   category: ResearchLogCategory;
   affiliation: ResearchLogAffiliation;
   categories?: ResearchLogCategory[];

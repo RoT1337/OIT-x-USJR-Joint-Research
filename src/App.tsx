@@ -12,7 +12,8 @@ import { TimelinePage } from "./pages/TimelinePage";
 import type { LogEntry } from "./types/LogEntry";
 import type { ResearchLog, ResearchLogAffiliation } from "./types/ResearchLog";
 
-const RESEARCHLOG_API_URL = apiUrl("/api/researchlog/");
+const RESEARCHLOG_API_URL = (lang: string) =>
+  apiUrl(`/api/researchlog/?lang=${lang}`);
 const ME_API_URL = apiUrl("/api/me/");
 const LOGOUT_API_URL = apiUrl("/api/logout/");
 const GOOGLE_LOGIN_URL = apiUrl("/accounts/google/login/?process=login");
@@ -68,7 +69,7 @@ function App() {
       setIsLoading(true);
       setErrorMessage(null);
 
-      const response = await apiFetch(RESEARCHLOG_API_URL, { signal });
+      const response = await apiFetch(RESEARCHLOG_API_URL(language), { signal });
       if (!response.ok) {
         throw new Error(`HTTP ${response.status} ${response.statusText}`);
       }
@@ -82,7 +83,7 @@ function App() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+    }, [language]);
 
   function requestLogin() {
     setIsLoginOpen(true);
@@ -177,7 +178,10 @@ function App() {
     return logs.map((log) => ({
       id: log.id,
       date: log.created_at,
-      title: log.title,
+      title:
+        language === "jp" && log.translated_title
+          ? log.translated_title
+          : log.title,
       category: log.category,
       affiliation: log.affiliation,
       categories: log.categories ?? [log.category],
@@ -185,7 +189,10 @@ function App() {
       authorName:
         (log.created_by_name ?? "").trim() || (log.created_by_email ?? "").trim() || undefined,
       authorEmail: (log.created_by_email ?? "").trim() || undefined,
-      content: log.content,
+      content:
+        language === "jp" && log.translated_content
+          ? log.translated_content
+          : log.content,
       attachments: log.attachments ?? [],
     }));
   }, [logs]);
