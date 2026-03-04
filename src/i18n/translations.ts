@@ -13,6 +13,7 @@ export const translations = {
   download: "Download",
 
     loginDescription: "Continue with Google or Microsoft.",
+    loginRequiredDescription: "Please log in to access the timeline and attachments.",
     cancel: "Cancel",
     close: "Close",
     continueWithGoogle: "Continue with Google",
@@ -103,6 +104,7 @@ export const translations = {
   download: "ダウンロード",
 
     loginDescription: "Google または Microsoft で続行してください。",
+    loginRequiredDescription: "タイムラインと添付ファイルにアクセスするにはログインしてください。",
     cancel: "キャンセル",
     close: "閉じる",
     continueWithGoogle: "Googleで続行",

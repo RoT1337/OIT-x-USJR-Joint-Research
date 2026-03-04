@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 
+from django.http import HttpResponse
 from django.contrib.auth import logout
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404
@@ -17,6 +18,10 @@ from .serializers import ResearchAttachmentSerializer
 
 
 def attachment_download(request, pk: int):
+    user = getattr(request, "user", None)
+    if not getattr(user, "is_authenticated", False):
+        return HttpResponse("Authentication required", status=401, content_type="text/plain")
+
     attachment = get_object_or_404(ResearchAttachment, pk=pk)
 
     if not attachment.file:

@@ -8,7 +8,7 @@ from .affiliation import infer_affiliation_from_user, is_affiliation_mapping_con
 class ResearchLogPermission(BasePermission):
     """Permission policy:
 
-    - Anyone can read
+    - Login required to read
     - Create/update requires login AND an inferred affiliation (via email allowlist domain mapping)
     - Updates require the entry's affiliation to match the user's inferred affiliation
     - Delete is admin-only
@@ -19,10 +19,10 @@ class ResearchLogPermission(BasePermission):
     def has_permission(self, request, view) -> bool:
         action = getattr(view, "action", None)
 
-        if request.method in SAFE_METHODS or action in {"list", "retrieve"}:
-            return True
-
         user = getattr(request, "user", None)
+        if request.method in SAFE_METHODS or action in {"list", "retrieve"}:
+            return bool(getattr(user, "is_authenticated", False))
+
         if not getattr(user, "is_authenticated", False):
             return False
 
@@ -44,7 +44,7 @@ class ResearchLogPermission(BasePermission):
         user = getattr(request, "user", None)
 
         if request.method in SAFE_METHODS or action in {"retrieve", "list"}:
-            return True
+            return bool(getattr(user, "is_authenticated", False))
 
         if not getattr(user, "is_authenticated", False):
             return False

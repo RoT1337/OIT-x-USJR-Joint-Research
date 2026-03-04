@@ -8,6 +8,7 @@ import { ToastHost, type ToastItem, type ToastTone } from "./components/layout/T
 import { apiFetch, apiUrl } from "./api";
 import { useLanguage } from "./context/LanguageContext";
 import { translations } from "./i18n/translations";
+import { LoginPage } from "./pages/LoginPage";
 import { TimelinePage } from "./pages/TimelinePage";
 import type { LogEntry } from "./types/LogEntry";
 import type { ResearchLog, ResearchLogAffiliation } from "./types/ResearchLog";
@@ -28,6 +29,7 @@ function App() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
   const [userName, setUserName] = useState<string>("");
   const [userEmail, setUserEmail] = useState<string>("");
   const [userAffiliation, setUserAffiliation] = useState<ResearchLogAffiliation | null>(null);
@@ -72,6 +74,15 @@ function App() {
 
       const response = await apiFetch(RESEARCHLOG_API_URL(language), { signal });
       if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          setIsAuthenticated(false);
+          setUserName("");
+          setUserEmail("");
+          setUserAffiliation(null);
+          setAffiliationEnforced(false);
+          setIsStaff(false);
+          throw new Error(`Not authenticated (HTTP ${response.status})`);
+        }
         throw new Error(`HTTP ${response.status} ${response.statusText}`);
       }
 
@@ -136,18 +147,13 @@ function App() {
 
   useEffect(() => {
     const controller = new AbortController();
-    void loadLogs(controller.signal);
-    return () => {
-      controller.abort();
-    };
-  }, [loadLogs]);
-
-  useEffect(() => {
-    const controller = new AbortController();
     (async () => {
       try {
         const response = await apiFetch(ME_API_URL, { signal: controller.signal });
-        if (!response.ok) return;
+        if (!response.ok) {
+          setIsAuthenticated(false);
+          return;
+        }
 
         const data = (await response.json()) as {
           isAuthenticated?: boolean;
@@ -175,10 +181,26 @@ function App() {
         }
       } catch {
         // If this fails in dev, we still allow read-only usage.
+        setIsAuthenticated(false);
+      } finally {
+        setIsAuthChecked(true);
       }
     })();
     return () => controller.abort();
   }, [addToast, t.toastLoggedIn]);
+
+  useEffect(() => {
+    if (!isAuthChecked) return;
+    if (!isAuthenticated) {
+      setLogs([]);
+      setIsLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    void loadLogs(controller.signal);
+    return () => controller.abort();
+  }, [isAuthChecked, isAuthenticated, loadLogs]);
 
   const entries: LogEntry[] = useMemo(() => {
     return logs.map((log) => ({
@@ -237,24 +259,36 @@ function App() {
       />
 
       <main className="mx-auto max-w-5xl px-4 py-6">
-        {isLoading ? (
-          <p className="text-sm text-zinc-600 dark:text-zinc-300">Loading research logs…</p>
-        ) : errorMessage ? (
-          <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
-        ) : null}
-        <TimelinePage
-          entries={entries}
-          onRefresh={() => void loadLogs()}
-          isRefreshing={isLoading}
-          canEditEntry={canEditEntry}
-          onRequestEdit={(entry) => {
-            if (!isAuthenticated) {
-              requestLogin();
-              return;
-            }
-            setEditingEntry(entry);
-          }}
-        />
+        {!isAuthChecked ? (
+          <p className="text-sm text-zinc-600 dark:text-zinc-300">Checking session…</p>
+        ) : !isAuthenticated ? (
+          <LoginPage
+            language={language}
+            onLoginGoogle={continueWithGoogleLogin}
+            onLoginMicrosoft={continueWithMicrosoftLogin}
+          />
+        ) : (
+          <>
+            {isLoading ? (
+              <p className="text-sm text-zinc-600 dark:text-zinc-300">Loading research logs…</p>
+            ) : errorMessage ? (
+              <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
+            ) : null}
+            <TimelinePage
+              entries={entries}
+              onRefresh={() => void loadLogs()}
+              isRefreshing={isLoading}
+              canEditEntry={canEditEntry}
+              onRequestEdit={(entry) => {
+                if (!isAuthenticated) {
+                  requestLogin();
+                  return;
+                }
+                setEditingEntry(entry);
+              }}
+            />
+          </>
+        )}
       </main>
 
       {isAuthenticated ? (
