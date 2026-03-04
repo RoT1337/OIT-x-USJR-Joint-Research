@@ -54,6 +54,8 @@ Set `VITE_API_BASE=http://localhost:8000` in `.env.development.local`.
 
 Note: OAuth flows (Google/Microsoft) are handled by Django on `http://localhost:8000/`.
 
+Access note: The timeline (and attachments) require login; anonymous read access is disabled.
+
 ## Microsoft OAuth (Azure/Entra) Setup
 
 This project uses `django-allauth`'s Microsoft provider.

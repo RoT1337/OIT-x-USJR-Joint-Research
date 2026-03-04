@@ -19,6 +19,7 @@ from django.http import HttpResponse
 from django.urls import include, path, re_path
 from django.views.generic import TemplateView
 from django.views.static import serve as static_serve
+from django.http import Http404
 from django.conf import settings
 import logging
 from pathlib import Path
@@ -28,6 +29,11 @@ logger = logging.getLogger(__name__)
 
 
 def media_serve(request, path: str):
+    user = getattr(request, "user", None)
+    if not getattr(user, "is_authenticated", False):
+        # Avoid leaking whether a media path exists.
+        raise Http404()
+
     media_root = Path(settings.MEDIA_ROOT)
     full_path = media_root / path
     logger.info("MEDIA request path=%s full_path=%s exists=%s", path, full_path, full_path.exists())

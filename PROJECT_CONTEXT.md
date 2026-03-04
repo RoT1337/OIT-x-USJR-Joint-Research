@@ -28,7 +28,7 @@ The system prioritizes **clarity**, **scanability**, and **persistence** so supe
 - Google OAuth via Django Allauth (allowlisted emails/domains)
 - Session-based SPA auth (`/api/me/`, `/api/logout/`, CSRF helpers)
 - API policy:
-  - Anyone can read
+  - Read requires login
   - Create/update requires login
   - Delete is admin-only
 - Affiliation-based edit permissions (configure `OAUTH_AFFILIATION_MAP` for strict enforcement)

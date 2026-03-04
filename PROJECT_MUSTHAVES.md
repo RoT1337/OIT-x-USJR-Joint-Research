@@ -113,7 +113,7 @@ Timeline filtering enhancements:
 Initial stage:
 
 - Editing restricted to authorized researchers
-- Viewing may remain public or semi-public depending on research sensitivity
+- Viewing is restricted to authorized researchers (login required)
 - No complex role hierarchy
 - Advanced authentication (e.g., institutional SSO) is out of scope for this phase
 
