@@ -72,13 +72,26 @@ export function LogCard({ entry, canEdit, onEdit }: Props) {
       ? entry.affiliations
       : [entry.affiliation];
 
+  const primaryAffiliation = affiliationTags[0] ?? entry.affiliation;
+
   const affiliationBadgeClassName = (affiliation: string) =>
     affiliation === "USJR"
-      ? "border-sky-200 bg-sky-50 text-sky-900 dark:border-sky-900/60 dark:bg-sky-950/30 dark:text-sky-100"
-      : "border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-100";
+      ? "border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-100"
+      : "border-sky-200 bg-sky-50 text-sky-900 dark:border-sky-900/60 dark:bg-sky-950/30 dark:text-sky-100";
+
+  const affiliationCornerAccentClassName = (affiliation: string) =>
+    affiliation === "USJR"
+      ? "from-emerald-500/35 via-emerald-500/10 dark:from-emerald-400/25 dark:via-emerald-400/10"
+      : "from-sky-500/35 via-sky-500/10 dark:from-sky-400/25 dark:via-sky-400/10";
 
   return (
-    <article className="border border-zinc-200 bg-white p-4 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-900">
+    <article className="relative overflow-hidden rounded-md border border-zinc-200 bg-white p-4 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-900">
+      <div
+        aria-hidden="true"
+        className={`pointer-events-none absolute left-0 top-0 h-16 w-16 bg-linear-to-br ${affiliationCornerAccentClassName(
+          primaryAffiliation
+        )} to-transparent`}
+      />
       <div className="flex items-start justify-between gap-3">
         <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
           {title}

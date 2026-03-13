@@ -8,6 +8,35 @@ type SortOrder = "newest" | "oldest";
 type WeekKey = "1" | "2" | "3" | "4" | "5";
 type AllOrWeek = "all" | WeekKey;
 
+const FILTER_STORAGE_KEY = "timelineFilters:v1";
+
+type StoredTimelineFilters = {
+  sortOrder: SortOrder;
+  selectedMonth: string;
+  selectedWeek: AllOrWeek;
+  selectedCategories: ResearchCategory[];
+  selectedAffiliations: Affiliation[];
+};
+
+function loadStoredTimelineFilters(): Partial<StoredTimelineFilters> | null {
+  try {
+    const raw = window.localStorage.getItem(FILTER_STORAGE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw) as Partial<StoredTimelineFilters>;
+    return data && typeof data === "object" ? data : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveStoredTimelineFilters(filters: StoredTimelineFilters): void {
+  try {
+    window.localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(filters));
+  } catch {
+    // ignore
+  }
+}
+
 const categories: ResearchCategory[] = ["Rectenna", "MPPT", "AI", "Meeting", "Other"];
 const affiliations: Affiliation[] = ["USJR", "OIT"];
 
@@ -23,11 +52,25 @@ export function TimelinePage({ entries, onRefresh, isRefreshing, canEditEntry, o
   const { language } = useLanguage();
   const t = translations[language];
 
-  const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
-  const [selectedMonth, setSelectedMonth] = useState<string>("all");
-  const [selectedWeek, setSelectedWeek] = useState<AllOrWeek>("all");
-  const [selectedCategories, setSelectedCategories] = useState<ResearchCategory[]>([]);
-  const [selectedAffiliations, setSelectedAffiliations] = useState<Affiliation[]>([]);
+  const stored = loadStoredTimelineFilters();
+  const hasStored = Boolean(stored);
+
+  const [sortOrder, setSortOrder] = useState<SortOrder>(() => (stored?.sortOrder === "oldest" ? "oldest" : "newest"));
+  const [selectedMonth, setSelectedMonth] = useState<string>(() => (typeof stored?.selectedMonth === "string" ? stored.selectedMonth : "all"));
+  const [selectedWeek, setSelectedWeek] = useState<AllOrWeek>(() => {
+    const wk = stored?.selectedWeek;
+    return wk === "all" || wk === "1" || wk === "2" || wk === "3" || wk === "4" || wk === "5" ? wk : "all";
+  });
+  const [selectedCategories, setSelectedCategories] = useState<ResearchCategory[]>(() => {
+    const raw = stored?.selectedCategories;
+    if (!Array.isArray(raw)) return [];
+    return raw.filter((x): x is ResearchCategory => categories.includes(x as any));
+  });
+  const [selectedAffiliations, setSelectedAffiliations] = useState<Affiliation[]>(() => {
+    const raw = stored?.selectedAffiliations;
+    if (!Array.isArray(raw)) return [];
+    return raw.filter((x): x is Affiliation => affiliations.includes(x as any));
+  });
 
   const toggleCategory = (category: ResearchCategory) => {
     setSelectedCategories((prev) =>
@@ -62,6 +105,14 @@ export function TimelinePage({ entries, onRefresh, isRefreshing, canEditEntry, o
 
   const getWeekKey = (dateString: string): WeekKey | null => {
     const d = new Date(dateString);
+    if (Number.isNaN(d.getTime())) return null;
+    const day = d.getDate();
+    const week = Math.floor((day - 1) / 7) + 1;
+    if (week < 1 || week > 5) return null;
+    return String(week) as WeekKey;
+  };
+
+  const getWeekKeyFromDate = (d: Date): WeekKey | null => {
     if (Number.isNaN(d.getTime())) return null;
     const day = d.getDate();
     const week = Math.floor((day - 1) / 7) + 1;
@@ -104,6 +155,40 @@ export function TimelinePage({ entries, onRefresh, isRefreshing, canEditEntry, o
     });
   }, [entries, language]);
 
+  useEffect(() => {
+    if (hasStored) return;
+    if (monthItems.length === 0) return;
+
+    const currentMonthKey = new Date().toISOString().slice(0, 7);
+    const monthExists = monthItems.some((m) => m.key === currentMonthKey);
+    const nextMonth = monthExists ? currentMonthKey : "all";
+
+    setSelectedMonth(nextMonth);
+    setSelectedWeek("all");
+
+    if (nextMonth === "all") return;
+
+    const todayWeek = getWeekKeyFromDate(new Date());
+    if (!todayWeek) return;
+
+    const hasEntriesInTodayWeek = entries.some(
+      (e) => e.date.startsWith(nextMonth) && getWeekKey(e.date) === todayWeek
+    );
+    if (hasEntriesInTodayWeek) setSelectedWeek(todayWeek);
+  }, [entries, hasStored, monthItems]);
+
+  useEffect(() => {
+    if (monthItems.length === 0) return;
+
+    if (selectedMonth === "all") return;
+    if (monthItems.some((m) => m.key === selectedMonth)) return;
+
+    const currentMonthKey = new Date().toISOString().slice(0, 7);
+    const fallbackMonth = monthItems.some((m) => m.key === currentMonthKey) ? currentMonthKey : "all";
+    setSelectedMonth(fallbackMonth);
+    setSelectedWeek("all");
+  }, [monthItems, selectedMonth]);
+
   const weekItems = useMemo(() => {
     if (selectedMonth === "all") return [] as { key: WeekKey; label: string }[];
 
@@ -127,6 +212,16 @@ export function TimelinePage({ entries, onRefresh, isRefreshing, canEditEntry, o
     if (weekItems.some((w) => w.key === selectedWeek)) return;
     setSelectedWeek("all");
   }, [selectedWeek, weekItems]);
+
+  useEffect(() => {
+    saveStoredTimelineFilters({
+      sortOrder,
+      selectedMonth,
+      selectedWeek,
+      selectedCategories,
+      selectedAffiliations,
+    });
+  }, [sortOrder, selectedMonth, selectedWeek, selectedCategories, selectedAffiliations]);
 
   const filteredEntries = useMemo(() => {
     return entries.filter((e) => {
