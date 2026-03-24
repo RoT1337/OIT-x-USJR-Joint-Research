@@ -1,4 +1,5 @@
 import { TimelineFeed } from "../components/TimelineFeed";
+import { TimelineSkeleton } from "../components/TimelineSkeleton";
 import { useEffect, useMemo, useState } from "react";
 import type { Affiliation, LogEntry, ResearchCategory } from "../types/LogEntry";
 import { useLanguage } from "../context/LanguageContext";
@@ -491,7 +492,11 @@ export function TimelinePage({ entries, onRefresh, isRefreshing, canEditEntry, o
         </div>
 
         <div className="mt-3">
-          <TimelineFeed entries={sortedEntries} canEditEntry={canEditEntry} onRequestEdit={onRequestEdit} />
+          {Boolean(isRefreshing) && entries.length === 0 ? (
+            <TimelineSkeleton />
+          ) : (
+            <TimelineFeed entries={sortedEntries} canEditEntry={canEditEntry} onRequestEdit={onRequestEdit} />
+          )}
         </div>
       </section>
     </div>
