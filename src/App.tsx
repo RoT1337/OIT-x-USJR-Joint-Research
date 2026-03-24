@@ -12,6 +12,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { TimelinePage } from "./pages/TimelinePage";
 import type { LogEntry } from "./types/LogEntry";
 import type { ResearchLog, ResearchLogAffiliation } from "./types/ResearchLog";
+import { TimelineSkeleton } from "./components/TimelineSkeleton";
 
 const RESEARCHLOG_API_URL = (lang: string) =>
   apiUrl(`/api/researchlog/?lang=${lang}`);
@@ -270,7 +271,7 @@ function App() {
         ) : (
           <>
             {isLoading ? (
-              <p className="text-sm text-zinc-600 dark:text-zinc-300">Loading research logs…</p>
+              <TimelineSkeleton />
             ) : errorMessage ? (
               <p className="text-sm text-red-700 dark:text-red-300">{errorMessage}</p>
             ) : null}
