@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppHeader } from "./components/layout/AppHeader";
 import { AddEntryModal } from "./components/layout/AddEntryModal";
 import { EditEntryModal } from "./components/layout/EditEntryModal";
+import { GlobalLoadingBar } from "./components/layout/GlobalLoadingBar";
 import { LoginModal } from "./components/layout/LoginModal";
 import { NavBar } from "./components/layout/NavBar";
 import { ToastHost, type ToastItem, type ToastTone } from "./components/layout/ToastHost";
@@ -244,6 +245,7 @@ function App() {
 
   return (
     <div className="min-h-screen relative">
+      <GlobalLoadingBar />
       <AppHeader title={t.appTitle} subtitle={t.appSubtitle} />
 
       <NavBar
@@ -253,7 +255,8 @@ function App() {
         userLabel={(userName || userEmail).trim()}
         userAffiliation={userAffiliation}
         onRequestLogin={requestLogin}
-        onRequestLogout={isLoggingOut ? undefined : requestLogout}
+        onRequestLogout={requestLogout}
+        isLoggingOut={isLoggingOut}
         onRequestAddEntry={requestAddEntry}
         isAddEntryOpen={isAddEntryOpen}
       />

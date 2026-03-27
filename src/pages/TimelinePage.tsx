@@ -374,7 +374,15 @@ export function TimelinePage({ entries, onRefresh, isRefreshing, canEditEntry, o
               className="inline-flex items-center rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-900 transition-colors hover:bg-zinc-50 disabled:opacity-60 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
               title={t.refresh}
             >
-              {t.refresh}
+              <span className="inline-flex items-center gap-2">
+                {Boolean(isRefreshing) ? (
+                  <span
+                    className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-800 dark:border-zinc-700 dark:border-t-zinc-100"
+                    aria-hidden="true"
+                  />
+                ) : null}
+                {t.refresh}
+              </span>
             </button>
           ) : null}
         </div>
@@ -492,7 +500,7 @@ export function TimelinePage({ entries, onRefresh, isRefreshing, canEditEntry, o
         </div>
 
         <div className="mt-3">
-          {Boolean(isRefreshing) && entries.length === 0 ? (
+          {Boolean(isRefreshing) ? (
             <TimelineSkeleton />
           ) : (
             <TimelineFeed entries={sortedEntries} canEditEntry={canEditEntry} onRequestEdit={onRequestEdit} />

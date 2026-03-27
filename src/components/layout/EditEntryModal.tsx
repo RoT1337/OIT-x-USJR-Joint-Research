@@ -301,7 +301,15 @@ export function EditEntryModal({
               disabled={isSubmitting}
               className="inline-flex items-center rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-900 hover:bg-sky-100 disabled:opacity-60 dark:border-sky-900/60 dark:bg-sky-950/30 dark:text-sky-100 dark:hover:bg-sky-950/50"
             >
-              {isSubmitting ? t.saving : t.saveChanges}
+              <span className="inline-flex items-center gap-2">
+                {isSubmitting ? (
+                  <span
+                    className="h-4 w-4 animate-spin rounded-full border-2 border-sky-300 border-t-sky-900 dark:border-sky-900/40 dark:border-t-sky-100"
+                    aria-hidden="true"
+                  />
+                ) : null}
+                {isSubmitting ? t.saving : t.saveChanges}
+              </span>
             </button>
           </div>
         </form>

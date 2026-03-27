@@ -254,7 +254,15 @@ export function AddEntryModal({
               disabled={isSubmitting}
               className="inline-flex items-center rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-900 hover:bg-emerald-100 disabled:opacity-60 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-100 dark:hover:bg-emerald-950/50"
             >
-              {isSubmitting ? t.saving : t.addEntry}
+              <span className="inline-flex items-center gap-2">
+                {isSubmitting ? (
+                  <span
+                    className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-300 border-t-emerald-900 dark:border-emerald-900/40 dark:border-t-emerald-100"
+                    aria-hidden="true"
+                  />
+                ) : null}
+                {isSubmitting ? t.saving : t.addEntry}
+              </span>
             </button>
           </div>
         </form>

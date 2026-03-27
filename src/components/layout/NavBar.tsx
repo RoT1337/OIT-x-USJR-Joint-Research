@@ -11,6 +11,7 @@ interface Props {
   userAffiliation?: ResearchLogAffiliation | null;
   onRequestLogin: () => void;
   onRequestLogout?: () => void;
+  isLoggingOut?: boolean;
   onRequestAddEntry: () => void;
   isAddEntryOpen: boolean;
 }
@@ -23,6 +24,7 @@ export function NavBar({
   userAffiliation,
   onRequestLogin,
   onRequestLogout,
+  isLoggingOut,
   onRequestAddEntry,
   isAddEntryOpen,
 }: Props) {
@@ -79,10 +81,19 @@ export function NavBar({
               <button
                 type="button"
                 onClick={onRequestLogout}
+                disabled={Boolean(isLoggingOut)}
                 className="rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-sm font-medium text-red-900 transition-colors hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-100 dark:hover:bg-red-950/50"
                 title={t.logout}
               >
-                {t.logout}
+                <span className="inline-flex items-center gap-2">
+                  {Boolean(isLoggingOut) ? (
+                    <span
+                      className="h-4 w-4 animate-spin rounded-full border-2 border-red-300 border-t-red-800 dark:border-red-900/40 dark:border-t-red-100"
+                      aria-hidden="true"
+                    />
+                  ) : null}
+                  {t.logout}
+                </span>
               </button>
             ) : null}
 
